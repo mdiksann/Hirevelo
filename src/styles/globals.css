@@ -1,0 +1,99 @@
+@import "../../design/tokens.css";
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Full CSS colors are required by the generated Tailwind v4 primitives. */
+:root {
+  --background: var(--hv-surface);
+  --foreground: var(--hv-ink);
+  --card: var(--hv-surface);
+  --card-foreground: var(--hv-ink);
+  --popover: var(--hv-surface);
+  --popover-foreground: var(--hv-ink);
+  --primary: var(--hv-accent-solid);
+  --primary-foreground: var(--hv-surface);
+  --secondary: var(--hv-surface-active);
+  --secondary-foreground: var(--hv-ink-body);
+  --muted: var(--hv-surface-active);
+  --muted-foreground: var(--hv-muted);
+  --accent: var(--hv-accent-soft);
+  --accent-foreground: var(--hv-accent-ink);
+  --destructive: var(--hv-danger-solid);
+  --destructive-foreground: var(--hv-danger-solid-fg);
+  --border: var(--hv-border);
+  --input: var(--hv-border);
+  --ring: var(--hv-accent-ink);
+  --radius: var(--hv-radius-control);
+}
+
+@theme inline {
+  --color-canvas: var(--hv-canvas);
+  --color-surface: var(--hv-surface);
+  --color-surface-subtle: var(--hv-surface-subtle);
+  --color-ink: var(--hv-ink);
+  --color-ink-body: var(--hv-ink-body);
+  --color-subtle: var(--hv-subtle);
+  --color-border-subtle: var(--hv-border-subtle);
+  --color-primary-hover: var(--hv-accent-solid-hover);
+  --color-accent-ink: var(--hv-accent-ink);
+  --color-accent-soft: var(--hv-accent-soft);
+  --font-sans: var(--font-geist-sans), var(--hv-font-sans);
+  --radius-panel: var(--hv-radius-panel);
+  --radius-control: var(--hv-radius-control);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  /* Keep shadcn's muted/accent fills distinct from body text/brand marks. */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-brand-accent: var(--hv-accent);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: var(--hv-radius-dot);
+  --radius-md: var(--hv-radius-tag);
+  --radius-lg: var(--hv-radius-control);
+  --radius-xl: var(--hv-radius-panel);
+  --radius-2xl: var(--hv-radius-shell);
+}
+
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--hv-accent-ink);
+    outline-offset: 2px;
+  }
+  html {
+    color-scheme: light;
+  }
+  body {
+    margin: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@layer utilities {
+  [data-slot="dialog-overlay"] {
+    @apply bg-[var(--hv-scrim)];
+  }
+}

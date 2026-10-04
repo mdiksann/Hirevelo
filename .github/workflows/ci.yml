@@ -1,0 +1,51 @@
+name: Foundation CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: hirevelo
+          POSTGRES_PASSWORD: hirevelo_test
+          POSTGRES_DB: hirevelo_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U hirevelo -d hirevelo_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://hirevelo:hirevelo_test@localhost:5432/hirevelo_test
+      DATABASE_URL_TEST: postgresql://hirevelo:hirevelo_test@localhost:5432/hirevelo_test
+      AUTH_SECRET: ci-only-not-a-deployment-secret-at-least-32-characters
+      AUTH_URL: http://127.0.0.1:3100
+      STORAGE_DIR: ./storage/cv
+      LOG_LEVEL: info
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Conventional commits
+        if: github.event_name == 'pull_request'
+        run: npx commitlint --from "${{ github.event.pull_request.base.sha }}" --to "${{ github.event.pull_request.head.sha }}"
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm run test:unit
+      - run: npm run db:migrate
+      - run: npm run test:integration
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Dependency audit (blocking)
+        run: npm audit --audit-level=high

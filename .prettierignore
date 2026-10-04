@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+build/
+package-lock.json
+next-env.d.ts
+PROJECT_SPEC.md
+ENGINEERING.md
+TASKS.md
+DESIGN.md
+design/

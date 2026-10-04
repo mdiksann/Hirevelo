@@ -1,0 +1,118 @@
+/**
+ * Hirevelo design tokens — single source of truth for visual styling.
+ * Extracted from image.png (reference for language, not content).
+ * Usage: import at the top of src/styles/globals.css, then bridge into
+ * Tailwind / shadcn per DESIGN.md Appendix A.
+ *
+ * Do not edit hex values without re-running a contrast check (DESIGN.md §2).
+ */
+
+:root {
+  /* ---------- Font ---------- */
+  --hv-font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* ---------- Surfaces ---------- */
+  --hv-canvas: #edeff3;          /* page background behind the app shell */
+  --hv-surface: #ffffff;         /* shell, panels, tables, forms */
+  --hv-surface-subtle: #f7f8fa;  /* hover fills */
+  --hv-surface-active: #f2f4f5;  /* active nav item, neutral badge */
+  --hv-surface-raised: #fafbfc;  /* table row hover */
+  --hv-surface-cell: #e7e9ec;    /* closed badge, subtle chips */
+
+  /* ---------- Text ---------- */
+  --hv-ink: #0b0c0e;             /* 19.6:1 on white */
+  --hv-ink-body: #3b3d3f;        /* 10.9:1 */
+  --hv-muted: #65686d;           /* 5.6:1 white · 4.9:1 canvas */
+  --hv-subtle: #6f7278;          /* 4.8:1 — labels, placeholders */
+  --hv-icon: #8a8d93;            /* 3.3:1 — icon strokes only, never text */
+
+  /* ---------- Accent (sky) ---------- */
+  --hv-accent: #1fadfd;          /* brand fills, dots, marks — never text */
+  --hv-accent-solid: #0b7abf;    /* primary button bg (white text, 4.6:1) */
+  --hv-accent-solid-hover: #09679f;
+  --hv-accent-ink: #0e7bb8;      /* links, active states, blue badge text */
+  --hv-accent-soft: #e7f4fd;     /* blue badge bg, active tab bg */
+  --hv-accent-ring: rgba(14, 123, 184, 0.18); /* focus ring, 3px */
+
+  /* ---------- Semantic status ---------- */
+  --hv-success-solid: #2f6b10;   /* Hired (solid = terminal) */
+  --hv-success-solid-fg: #ffffff;
+  --hv-success-tint: #e8f6dd;    /* Offering, Published */
+  --hv-success-ink: #377114;
+
+  --hv-warning-tint: #fdf3dc;    /* Interview, awaiting */
+  --hv-warning-ink: #8c6200;
+
+  --hv-danger-solid: #b23b33;    /* Rejected, destructive solid */
+  --hv-danger-solid-fg: #ffffff;
+  --hv-danger-tint: #fdecea;     /* error banners */
+  --hv-danger-ink: #b23b33;
+  --hv-danger-border: #e9c4c1;
+
+  --hv-info-tint: #e7f4fd;       /* Screening */
+  --hv-info-ink: #0e7bb8;
+
+  --hv-neutral-tint: #f2f4f5;    /* Applied */
+  --hv-neutral-ink: #3b3d3f;
+  --hv-tag-bg: #ffffff;
+  --hv-tag-ink: #585a5a;
+
+  /* ---------- Borders ---------- */
+  --hv-border: #e2e4e8;          /* controls, cards, dialogs */
+  --hv-border-subtle: #ececef;   /* table separators, hairlines */
+  --hv-border-hover: #d6d9de;    /* control hover border */
+  --hv-border-focus: #0e7bb8;
+
+  /* ---------- Radius ---------- */
+  --hv-radius-shell: 16px;       /* app shell only */
+  --hv-radius-panel: 12px;       /* panels, cards, dialogs */
+  --hv-radius-control: 8px;      /* buttons, inputs, nav items, avatars */
+  --hv-radius-tag: 6px;          /* tags, small chips, tab fill */
+  --hv-radius-badge: 9999px;     /* status badges */
+  --hv-radius-dot: 4px;          /* checkboxes */
+
+  /* ---------- Elevation (only two shadows) ---------- */
+  --hv-shadow-shell: 0 1px 2px rgba(11, 12, 14, 0.04),
+    0 12px 32px -12px rgba(11, 12, 14, 0.12);
+  --hv-shadow-overlay: 0 16px 40px -12px rgba(11, 12, 14, 0.24);
+  --hv-scrim: rgba(11, 12, 14, 0.4); /* dialog backdrop, no blur */
+
+  /* ---------- Type scale ---------- */
+  --hv-text-page: 18px;      --hv-leading-page: 26px;    /* 600 */
+  --hv-text-title: 15px;     --hv-leading-title: 22px;   /* 600 */
+  --hv-text-body: 14px;      --hv-leading-body: 21px;    /* 400 */
+  --hv-text-ui: 13px;        --hv-leading-ui: 18px;      /* 500 */
+  --hv-text-meta: 12px;      --hv-leading-meta: 17px;    /* 400 */
+  --hv-text-badge: 12px;     --hv-leading-badge: 16px;   /* 600 */
+  --hv-text-label: 11px;     --hv-leading-label: 14px;   /* 500 */
+  --hv-text-section: 10px;   --hv-leading-section: 14px; /* 600, uppercase */
+  --hv-text-metric: 24px;    --hv-leading-metric: 28px;  /* 600, tabular */
+
+  /* ---------- Spacing (4px grid — these nine steps only) ---------- */
+  --hv-space-1: 4px;
+  --hv-space-2: 8px;
+  --hv-space-3: 12px;
+  --hv-space-4: 16px;
+  --hv-space-5: 20px;
+  --hv-space-6: 24px;
+  --hv-space-8: 32px;
+  --hv-space-10: 40px;
+  --hv-space-12: 48px;
+
+  /* Values already specified by DESIGN.md recipes. */
+  --hv-skeleton: #eff1f3;
+  --hv-radius-menu: 10px;
+
+  /* ---------- Density ---------- */
+  --hv-row-height: 56px;   /* table rows */
+  --hv-control-h: 36px;    /* form controls, dialog buttons */
+  --hv-control-h-sm: 32px; /* toolbar buttons, icon buttons */
+  --hv-sidebar-w: 240px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --hv-motion-fast: 0ms;
+  }
+}
