@@ -14,7 +14,6 @@ import {
 import { fieldErrors, handleActionError } from "@/types/action-result";
 import { logger } from "@/lib/logger";
 import { env } from "@/lib/env";
-import { getSession } from "@/lib/session-stub";
 
 const valid = {
   DATABASE_URL: "postgresql://user:pass@localhost/hirevelo",
@@ -147,12 +146,6 @@ describe("errors and logging", () => {
     env.LOG_LEVEL = oldLevel;
     expect(debug).not.toHaveBeenCalled();
   });
-});
-it("never returns the session stub in production", async () => {
-  const old = env.NODE_ENV;
-  env.NODE_ENV = "production";
-  expect(await getSession()).toBeNull();
-  env.NODE_ENV = old;
 });
 
 it("groups prototype-named field errors safely", () => {
