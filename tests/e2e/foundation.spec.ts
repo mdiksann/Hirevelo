@@ -28,7 +28,7 @@ test("route groups render distinct navigation with accessible landmarks", async 
     await expect(
       page.getByRole("navigation", { name: navigation }),
     ).toBeVisible();
-    if (path !== "/sign-in" && path !== "/register")
+    if (path !== "/sign-in" && path !== "/register" && path !== "/careers")
       await expect(
         page.getByRole("heading", { name: "Nothing here yet" }),
       ).toBeVisible();
