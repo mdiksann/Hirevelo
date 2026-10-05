@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { isolateIp, login } from "./auth-helpers";
 import AxeBuilder from "@axe-core/playwright";
+
+test.beforeEach(async ({ context }) => isolateIp(context));
 
 test("route groups render distinct navigation with accessible landmarks", async ({
   page,
@@ -12,6 +15,10 @@ test("route groups render distinct navigation with accessible landmarks", async 
     ["/recruiter", "Dashboard", "Recruiter navigation"],
     ["/applications", "My applications", "Candidate navigation"],
   ] as const) {
+    if (path === "/recruiter" || path === "/applications") {
+      await page.context().clearCookies();
+      await login(page, path === "/recruiter" ? "recruiter" : "candidate");
+    }
     await page.goto(path);
     await expect(
       page.getByRole("heading", { level: 1, name: title, exact: true }),
@@ -21,9 +28,10 @@ test("route groups render distinct navigation with accessible landmarks", async 
     await expect(
       page.getByRole("navigation", { name: navigation }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Nothing here yet" }),
-    ).toBeVisible();
+    if (path !== "/sign-in" && path !== "/register")
+      await expect(
+        page.getByRole("heading", { name: "Nothing here yet" }),
+      ).toBeVisible();
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
@@ -34,6 +42,7 @@ test("desktop shell has specified geometry and keyboard focus", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
+  await login(page, "recruiter");
   await page.goto("/recruiter");
   expect((await page.locator("aside").boundingBox())?.width).toBe(240);
   const jobs = page.getByRole("link", { name: "Jobs", exact: true });
@@ -60,6 +69,7 @@ test("mobile drawer traps focus, closes on Escape, and restores its trigger", as
   page,
 }) => {
   await page.setViewportSize({ width: 375, height: 812 });
+  await login(page, "recruiter");
   await page.goto("/recruiter");
   const trigger = page.getByRole("button", { name: "Open navigation" });
   await trigger.click();
