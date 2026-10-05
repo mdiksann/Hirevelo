@@ -17,11 +17,19 @@ export const envSchema = z
     STORAGE_DIR: z.string().trim().min(1),
     SEED_RECRUITER_EMAIL: z.preprocess(
       (value) => (value === "" ? undefined : value),
-      z.string().email().optional(),
+      z.string().trim().toLowerCase().email().optional(),
     ),
     SEED_RECRUITER_PASSWORD: z.preprocess(
       (value) => (value === "" ? undefined : value),
-      z.string().min(8).max(72).optional(),
+      z
+        .string()
+        .min(8)
+        .max(72)
+        .refine(
+          (value) => new TextEncoder().encode(value).length <= 72,
+          "Password must be at most 72 bytes",
+        )
+        .optional(),
     ),
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).optional(),
     NODE_ENV: z
