@@ -8,3 +8,10 @@ declare module "next-auth" {
     };
   }
 }
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    sessionId?: string;
+    role?: "RECRUITER" | "CANDIDATE";
+  }
+}
