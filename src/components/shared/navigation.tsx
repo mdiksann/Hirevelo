@@ -8,6 +8,7 @@ import {
   FileText,
   Plus,
 } from "lucide-react";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -88,15 +89,7 @@ export function Navigation({ role, onNavigate, recentJobs = [] }: Props) {
             </Link>
           );
         })}
-        {role === "candidate" && (
-          <button
-            disabled
-            className="h-9 rounded-control px-3 text-left text-[length:var(--hv-text-ui)] text-subtle"
-            title="Sign-out is available once sign-in is implemented"
-          >
-            Sign out
-          </button>
-        )}
+        <SignOutButton />
       </nav>
       {role === "recruiter" && (
         <section className="mt-5 px-3">
