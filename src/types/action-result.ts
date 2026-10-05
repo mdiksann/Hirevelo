@@ -36,6 +36,7 @@ export function handleActionError(
       ok: false,
       message: "Please check your input.",
       errors: fieldErrors(error),
+      status: 400,
     };
   }
   let safe: AppError | undefined;
@@ -55,6 +56,6 @@ export function handleActionError(
   return {
     ok: false,
     message: safe?.message ?? "Something went wrong. Please try again.",
-    ...(safe?.httpStatus === 429 ? { status: 429 } : {}),
+    ...(safe ? { status: safe.httpStatus } : {}),
   };
 }

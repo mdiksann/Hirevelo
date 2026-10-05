@@ -1,5 +1,10 @@
 import "server-only";
-import { z } from "zod";
+import { requireCandidate, requireRecruiter } from "@/lib/auth-helpers";
+import {
+  jobIdSchema,
+  jobListQuerySchema,
+  jobSlugSchema,
+} from "@/lib/validation/jobs";
 import { prisma } from "@/lib/db";
 import { paginate } from "@/lib/types/pagination";
 
@@ -41,13 +46,8 @@ export function toJobDto(job: JobRow): JobDto {
     publishedAt: job.publishedAt?.toISOString() ?? null,
   };
 }
-const listSchema = z.object({
-  q: z.string().trim().max(120).default(""),
-  page: z.number().finite().optional(),
-  pageSize: z.number().finite().optional(),
-});
 export async function getPublishedJobs(input: unknown = {}) {
-  const params = listSchema.parse(input);
+  const params = jobListQuerySchema.parse(input);
   const pagination = paginate(params);
   const where = {
     status: "PUBLISHED" as const,
@@ -74,16 +74,81 @@ export async function getPublishedJobs(input: unknown = {}) {
   };
 }
 export async function getJobBySlug(input: unknown): Promise<JobDto | null> {
-  const slug = z
-    .string()
-    .trim()
-    .min(1)
-    .max(160)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-    .parse(input);
+  const slug = jobSlugSchema.parse(input);
   const job = await prisma.job.findUnique({
     where: { slug, status: "PUBLISHED" },
     select,
   });
   return job ? toJobDto(job) : null;
+}
+
+export const jobSelect = {
+  ...select,
+  status: true,
+  updatedAt: true,
+  _count: { select: { applications: true } },
+} as const;
+type RecruiterJobRow = JobRow & {
+  status: "DRAFT" | "PUBLISHED" | "CLOSED" | "ARCHIVED";
+  updatedAt: Date;
+  _count: { applications: number };
+};
+export type RecruiterJobDto = JobDto & {
+  status: RecruiterJobRow["status"];
+  updatedAt: string;
+  applicantsCount: number;
+};
+export function toRecruiterJobDto(job: RecruiterJobRow): RecruiterJobDto {
+  return {
+    ...toJobDto(job),
+    status: job.status,
+    updatedAt: job.updatedAt.toISOString(),
+    applicantsCount: job._count.applications,
+  };
+}
+export async function getJobsForRecruiter(input: unknown = {}) {
+  await requireRecruiter();
+  const params = jobListQuerySchema.parse(input);
+  const pagination = paginate(params);
+  const where = {
+    ...(params.status ? { status: params.status } : {}),
+    ...(params.q
+      ? { title: { contains: params.q, mode: "insensitive" as const } }
+      : {}),
+  };
+  const [total, rows] = await prisma.$transaction([
+    prisma.job.count({ where }),
+    prisma.job.findMany({
+      where,
+      select: jobSelect,
+      skip: Math.min(pagination.skip, 2_147_483_647),
+      take: pagination.take,
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+    }),
+  ]);
+  return {
+    items: rows.map(toRecruiterJobDto),
+    total,
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+  };
+}
+export async function getJobForRecruiter(input: unknown) {
+  await requireRecruiter();
+  const id = jobIdSchema.parse(input);
+  const row = await prisma.job.findUnique({ where: { id }, select: jobSelect });
+  return row ? toRecruiterJobDto(row) : null;
+}
+export async function hasAppliedToJob(input: unknown) {
+  const session = await requireCandidate();
+  const jobId = jobIdSchema.parse(input);
+  return Boolean(
+    await prisma.application.findUnique({
+      where: {
+        jobId_candidateId: { jobId, candidateId: session.user.id },
+        job: { status: "PUBLISHED" },
+      },
+      select: { id: true },
+    }),
+  );
 }
