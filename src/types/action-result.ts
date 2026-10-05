@@ -10,7 +10,12 @@ import { logger } from "@/lib/logger";
 
 export type ActionResult<T> =
   | { ok: true; data: T }
-  | { ok: false; message: string; errors?: Record<string, string[]> };
+  | {
+      ok: false;
+      message: string;
+      errors?: Record<string, string[]>;
+      status?: number;
+    };
 export function fieldErrors(error: z.ZodError): Record<string, string[]> {
   const errors = new Map<string, string[]>();
   for (const issue of error.issues) {
@@ -50,5 +55,6 @@ export function handleActionError(
   return {
     ok: false,
     message: safe?.message ?? "Something went wrong. Please try again.",
+    ...(safe?.httpStatus === 429 ? { status: 429 } : {}),
   };
 }
