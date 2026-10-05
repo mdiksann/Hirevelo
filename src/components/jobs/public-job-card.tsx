@@ -1,0 +1,27 @@
+import Link from "next/link";
+import { employmentLabels, formatSalary } from "@/lib/jobs";
+import { formatDate } from "@/lib/utils";
+import type { JobDto } from "@/lib/queries/jobs";
+export function PublicJobCard({ job }: { job: JobDto }) {
+  return (
+    <li className="border-b border-border-subtle last:border-0">
+      <Link
+        href={`/careers/${job.slug}`}
+        className="flex min-h-[72px] flex-wrap items-center justify-between gap-4 px-5 py-3 hover:bg-surface-subtle"
+      >
+        <div>
+          <h2 className="text-[length:var(--hv-text-title)] font-semibold">
+            {job.title}
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {job.location} · {employmentLabels[job.employmentType]}
+            {job.publishedAt && ` · Posted ${formatDate(job.publishedAt)}`}
+          </p>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {formatSalary(job.salaryMin, job.salaryMax)}
+        </p>
+      </Link>
+    </li>
+  );
+}

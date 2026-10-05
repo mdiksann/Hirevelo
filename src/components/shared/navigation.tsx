@@ -100,7 +100,7 @@ export function Navigation({ role, onNavigate, recentJobs = [] }: Props) {
             recentJobs.map((job) => (
               <Link
                 key={job.id}
-                href="/recruiter/jobs"
+                href={`/recruiter/jobs/${job.id}`}
                 title={job.title}
                 onClick={onNavigate}
                 className="flex h-9 items-center gap-2 rounded-control text-[length:var(--hv-text-ui)] text-ink-body"
