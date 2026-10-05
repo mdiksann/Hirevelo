@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
-export default async function Page() {
-  if (!(await cookies()).has("foundation-recovered")) throw new Error("Foundation test private failure");
+"use client";
+export default function Page() {
+  if (typeof document !== "undefined" && !document.cookie.split(";").some(cookie => cookie.trim() === "foundation-recovered=1")) throw new Error("Foundation test private failure");
   return <main><h1>Recovered</h1></main>;
 }
