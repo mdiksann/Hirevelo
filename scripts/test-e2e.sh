@@ -9,9 +9,10 @@ if [[ -e "$fixture_dir" ]]; then
 fi
 
 cleanup() {
-  rm -rf "$fixture_dir" .next/dev/types
+  rm -rf "$fixture_dir" .next
 }
 trap cleanup EXIT
 mkdir -p "$fixture_dir"
 cp tests/fixtures/error-page.tsx.txt "$fixture_dir/page.tsx"
+node --env-file-if-exists=.env --import tsx tests/e2e/setup.ts
 node --env-file-if-exists=.env node_modules/@playwright/test/cli.js test "$@"
