@@ -1,4 +1,4 @@
-import { FoundationPage } from "@/components/shared/foundation-page";
+import { AuthForm } from "@/components/auth/auth-form";
 export default function Page() {
-  return <FoundationPage title="Sign in" />;
+  return <AuthForm />;
 }
