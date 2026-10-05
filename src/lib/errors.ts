@@ -33,3 +33,18 @@ export class StorageError extends AppError {
     super(message, "STORAGE_ERROR", 500);
   }
 }
+
+export class AuthError extends AppError {
+  constructor() {
+    super("Please sign in to continue.", "UNAUTHENTICATED", 401);
+  }
+}
+export class RateLimitError extends AppError {
+  constructor(readonly retryAfter: number) {
+    super(
+      "Too many attempts. Please try again in 15 minutes.",
+      "RATE_LIMITED",
+      429,
+    );
+  }
+}
