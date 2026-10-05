@@ -45,6 +45,8 @@ export async function seed() {
         createdAt: date,
       },
     });
+    if (recruiter.role !== "RECRUITER")
+      throw new Error("Recruiter seed email belongs to a candidate.");
     const candidates = [];
     for (const index of [1, 2, 3])
       candidates.push(
