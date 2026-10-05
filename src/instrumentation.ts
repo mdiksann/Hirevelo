@@ -1,7 +1,11 @@
 import type { Instrumentation } from "next";
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") await import("@/lib/env");
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await import("@/lib/env");
+    const { bootstrapRecruiter } = await import("@/lib/bootstrap");
+    await bootstrapRecruiter();
+  }
 }
 
 export const onRequestError: Instrumentation.onRequestError = async (
