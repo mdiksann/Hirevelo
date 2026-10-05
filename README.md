@@ -36,8 +36,8 @@ notes, activity history, and a recruiter dashboard. It does not include AI resum
 scoring, messaging, calendar scheduling, billing, or configurable pipeline stages.
 
 The project is under development. The current application provides the database
-foundation and interface placeholders; the hiring and authentication workflows
-are still being built.
+foundation, candidate registration, credential sign-in, sign-out, and protected
+role-specific shells. Hiring screens still contain placeholders.
 
 ## Technology
 
@@ -62,10 +62,10 @@ npm run dev
 
 Open http://localhost:3000. Routes: `/`, `/careers`, `/sign-in`, `/register`,
 `/recruiter`, `/recruiter/jobs`, `/recruiter/candidates`, and `/applications`.
-Navigation destinations currently contain placeholders. The recruiter layout uses
-a development/test session stub; production redirects it to `/sign-in`. The stub
-does not authorize private queries or mutations. The recent-job sidebar displays
-public published-job titles.
+Hiring destinations currently contain placeholders. Recruiter and application
+layouts enforce their roles on the server; anonymous visitors go to `/sign-in`,
+and wrong-role requests receive the existing 404 screen. The recent-job sidebar
+displays public published-job titles.
 
 Compose runs PostgreSQL 16 bound to localhost with a persistent named volume and
 healthcheck. Its credentials are local demo values. `POSTGRES_PORT` optionally
@@ -78,6 +78,35 @@ characters), `AUTH_URL`, and `STORAGE_DIR` are required. `LOG_LEVEL` defaults to
 optional together in development; production seeding requires both. The `.env`
 file, uploads, build output, and browser traces are ignored.
 
+## Authentication and recruiter provisioning
+
+Candidate registration always creates `CANDIDATE`; there is no public recruiter
+creation endpoint. Passwords use cost-12 bcrypt with a 72-byte input limit.
+Auth.js credentials use JWT cookies with an entry in the existing Session table
+for server-side expiry/revocation. Sign-out removes that entry and clears the
+cookie, so replaying a copied cookie cannot restore a session. The Next.js 16
+proxy only decrypts cookies for coarse redirects; server helpers enforce roles
+and ownership against the database.
+
+Before production startup, apply migrations and set both
+`SEED_RECRUITER_EMAIL` and `SEED_RECRUITER_PASSWORD` to operator-controlled values.
+On production startup, the bootstrap creates one recruiter when none exists.
+Without those values and an existing recruiter, it logs `RECRUITER_MISSING`. An
+email already belonging to a candidate is never promoted; choose an unused
+operator email. Existing recruiter accounts/passwords remain unchanged. The
+seed command can also provision the account; it is idempotent and production
+seeding requires both variables. Do not use the demo password in production.
+
+Sign-in and registration share a limit of 10 attempts per 15 minutes per IP.
+Direct credential requests return HTTP 429 with `Retry-After`; Server Actions
+return a safe error with status 429 for inline form feedback. The limiter lives
+in memory for the single-instance MVP and resets on restart. Before using
+multiple instances, replace it with a shared store. The trusted ingress must
+overwrite or append `X-Forwarded-For` and prevent clients from reaching the app
+directly: the limiter uses the last address, falling back to a shared `unknown`
+bucket when no valid address is available. Set `AUTH_URL` to the actual public
+origin; use HTTPS in production for secure Auth.js cookies.
+
 ## Database and demo data
 
 Three migrations establish core entities, history/files, then Auth.js tables.
@@ -89,8 +118,8 @@ keys, list indexes, and database uniqueness constraints. Activity references use
 statuses, 6 applications across all stages, interview notes, and activity entries.
 Demo password: `Demo-password-123`; recruiter email: `recruiter@example.com`
 (unless overridden); candidates: `candidate1@example.com` through `candidate3@example.com`.
-Demo accounts cannot sign in yet. CV rows are metadata placeholders without
-corresponding uploaded files.
+Demo accounts can sign in. Recruiters land on `/recruiter`; candidates land on `/`.
+CV rows are metadata placeholders without corresponding uploaded files.
 Inspect the complete dataset with `npm run db:studio`; the sidebar shows the two
 published demo jobs. Existing seed rows/accounts are preserved on repeat runs.
 
@@ -130,10 +159,11 @@ clears only that database, then seeds fixtures. The health failure test exercise
 an actual unreachable PostgreSQL connection. Tests use Vitest and real PostgreSQL,
 not an in-memory database. Shared Auth.js session roles are checked by TypeScript.
 
-Playwright starts its own development server on port 3100 to exercise the
-non-production shell stub. It temporarily installs an error fixture page and
-removes it and its generated dev route types on exit; no test route is shipped.
-Do not run another dev server on port 3100 during this suite.
+Playwright migrates and seeds the disposable test database and starts its own
+production build/server on port 3100 with real authentication. It temporarily installs an error fixture page and
+removes it and the test build on exit; run `npm run build` again before deployment.
+No test route is shipped.
+Do not run another server on port 3100 or a concurrent build during this suite.
 
 ## Project documentation
 
