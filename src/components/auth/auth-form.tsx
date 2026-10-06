@@ -9,7 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 type Failure = { message: string; errors?: Record<string, string[]> };
-export function AuthForm({ register = false }: { register?: boolean }) {
+export function AuthForm({
+  register = false,
+  returnTo,
+}: {
+  register?: boolean;
+  returnTo?: string;
+}) {
   const [values, setValues] = useState({ name: "", email: "", password: "" });
   const [failure, setFailure] = useState<Failure>();
   const [pending, startTransition] = useTransition();
@@ -31,9 +37,10 @@ export function AuthForm({ register = false }: { register?: boolean }) {
         onSubmit={(event) => {
           event.preventDefault();
           if (pending) return;
-          const parsed = (register ? registerSchema : signInSchema).safeParse(
-            values,
-          );
+          const parsed = (register ? registerSchema : signInSchema).safeParse({
+            ...values,
+            ...(returnTo ? { returnTo } : {}),
+          });
           if (!parsed.success) {
             showFailure({
               message: "Please check your input.",
@@ -174,7 +181,7 @@ export function AuthForm({ register = false }: { register?: boolean }) {
       <p className="mt-4 text-[length:var(--hv-text-ui)] text-muted-foreground">
         {register ? "Already have an account? " : "Need an account? "}
         <Link
-          href={register ? "/sign-in" : "/register"}
+          href={`${register ? "/sign-in" : "/register"}${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
           className="text-accent-ink underline"
         >
           {register ? "Sign in" : "Register"}
