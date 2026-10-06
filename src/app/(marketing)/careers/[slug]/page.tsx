@@ -52,7 +52,11 @@ export default async function Page({
         </Link>
         {!session ? (
           <Button asChild>
-            <Link href="/sign-in">Sign in to apply</Link>
+            <Link
+              href={`/sign-in?returnTo=${encodeURIComponent(`/careers/${job.slug}/apply`)}`}
+            >
+              Sign in to apply
+            </Link>
           </Button>
         ) : candidate ? (
           applied ? (
