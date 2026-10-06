@@ -102,6 +102,7 @@ model Application {
   @@index([jobId, stage])
   @@index([candidateId])
   @@index([stage, appliedAt])
+  @@index([appliedAt, id])
   @@map("applications")
 }
 
