@@ -18,11 +18,13 @@ export async function registerCandidate(
   input: unknown,
 ): Promise<ActionResult<null>> {
   let requestId = crypto.randomUUID();
+  let returnTo: string | undefined;
   try {
     const requestHeaders = await headers();
     requestId = requestHeaders.get("x-request-id") ?? requestId;
     limitAuthAttempt(authIp(requestHeaders));
     const parsed = registerSchema.parse(input);
+    returnTo = parsed.returnTo;
     const user = await prisma.user.create({
       data: {
         name: parsed.name,
@@ -55,7 +57,7 @@ export async function registerCandidate(
     }
     return handleActionError(error, requestId);
   }
-  redirect("/");
+  redirect(returnTo ?? "/");
 }
 export async function signInAction(
   input: unknown,
@@ -69,7 +71,8 @@ export async function signInAction(
     const parsed = signInSchema.parse(input);
     await signIn("credentials", { ...parsed, redirect: false });
     const user = await getAuthRole(parsed.email);
-    destination = user?.role === "RECRUITER" ? "/recruiter" : "/";
+    destination =
+      user?.role === "RECRUITER" ? "/recruiter" : (parsed.returnTo ?? "/");
   } catch (error) {
     if (error instanceof NextAuthError)
       return { ok: false, message: "Invalid email or password." };
