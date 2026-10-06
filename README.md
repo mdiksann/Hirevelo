@@ -37,7 +37,10 @@ scoring, messaging, calendar scheduling, billing, or configurable pipeline stage
 
 The project is under development. The current application provides the database
 foundation, candidate registration, credential sign-in, sign-out, and protected
-role-specific shells. Hiring screens still contain placeholders.
+role-specific shells, job management, CV uploads/downloads, candidate application
+submission and status views, and recruiter candidate search and profiles.
+Pipeline actions, interview notes, activity timelines, and the dashboard remain
+placeholders for their later tickets.
 
 ## Technology
 
@@ -62,7 +65,7 @@ npm run dev
 
 Open http://localhost:3000. Routes: `/`, `/careers`, `/sign-in`, `/register`,
 `/recruiter`, `/recruiter/jobs`, `/recruiter/candidates`, and `/applications`.
-Hiring destinations currently contain placeholders. Recruiter and application
+Recruiter and application
 layouts enforce their roles on the server; anonymous visitors go to `/sign-in`,
 and wrong-role requests receive the existing 404 screen. The recent-job sidebar
 displays public published-job titles.
@@ -164,6 +167,26 @@ production build/server on port 3100 with real authentication. It temporarily in
 removes it and the test build on exit; run `npm run build` again before deployment.
 No test route is shipped.
 Do not run another server on port 3100 or a concurrent build during this suite.
+
+## CV storage and applications
+
+Candidates apply at `/careers/[slug]/apply`, then view their submissions at
+`/applications`. Recruiters search applications at `/recruiter/candidates`.
+Only published jobs accept applications; duplicate applications are permanently
+blocked. File ownership is checked again during submission.
+
+CVs accept matching PDF/DOC/DOCX MIME types and extensions, up to 5 MB. Uploads
+are limited to ten attempts per candidate per fifteen minutes in this single
+process deployment. Generated files live under `STORAGE_DIR/cv/`; with the
+existing `STORAGE_DIR=./storage/cv`, that is `./storage/cv/cv/`. Downloads require
+the owner or a recruiter and always use attachment responses.
+
+HF-027 requires upload-time metadata, so uploads are staged before the application
+transaction links them. Failed metadata writes remove the new disk file; retries
+in the same apply form reuse the staged file. Abandoned successful uploads can
+remain unreferenced; the optional 24-hour orphan sweep is deferred as allowed by
+Engineering §14. Seeded demo CV metadata has no backing file and returns a safe
+404; newly uploaded CVs support downloads.
 
 ## Project documentation
 
