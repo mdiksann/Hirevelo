@@ -73,12 +73,11 @@ next-env.d.ts
 Thumbs.db
 
 # Docs
-AGENTS.md
-CLAUDE.md
-DESIGN.md
-ENGINEERING.md
-PROJECT_SPEC.md
 TASKS.md
+AGENTS.md
+DESIGN.md
+PROJECT_SPEC.md
+CLAUDE.md
 ui-guide.png
-
+ENGINEERING.md
 push.sh
