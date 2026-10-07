@@ -401,6 +401,11 @@ describe("application queries", () => {
       where: { id: { in: [a.id, b.id, c.id] } },
       data: { appliedAt, stage: "SCREENING" },
     });
+    // Keep history ordering independent of the database clock and test run date.
+    await prisma.activity.updateMany({
+      where: { applicationId: { in: [a.id, b.id, c.id] } },
+      data: { createdAt: appliedAt },
+    });
     await prisma.activity.create({
       data: {
         type: "NOTE_ADDED",
