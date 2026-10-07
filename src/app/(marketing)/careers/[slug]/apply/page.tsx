@@ -1,3 +1,4 @@
+import { getTranslator } from "@/lib/i18n/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireCandidate } from "@/lib/auth-helpers";
@@ -12,6 +13,7 @@ export default async function Page({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const t = await getTranslator();
   const parsed = jobSlugSchema.safeParse((await params).slug);
   if (!parsed.success) notFound();
   try {
@@ -29,14 +31,17 @@ export default async function Page({
   const applied = await hasAppliedToJob(job.id);
   return (
     <div className="mx-auto max-w-[720px]">
-      <PageHeader title={`Apply for ${job.title}`} description={job.location} />
+      <PageHeader
+        title={t("Apply for {title}", { title: job.title })}
+        description={job.location}
+      />
       {applied ? (
         <EmptyState
-          title="You have already applied to this job"
-          message="View your submitted application and current status."
+          title={t("You have already applied to this job")}
+          message={t("View your submitted application and current status.")}
           action={
             <Link href="/applications" className="text-accent-ink">
-              My applications
+              {t("My applications")}
             </Link>
           }
         />

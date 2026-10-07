@@ -1,26 +1,21 @@
-import Link from "next/link";
+import { auth } from "@/lib/auth";
 import type { ReactNode } from "react";
-type Props = { children: ReactNode };
-export default function Layout({ children }: Props) {
+import { PublicHeader } from "@/components/shared/public-header";
+import { PublicFooter } from "@/components/shared/public-footer";
+import { getTranslator } from "@/lib/i18n/server";
+export default async function Layout({ children }: { children: ReactNode }) {
+  const session = await auth();
+  const t = await getTranslator();
   return (
-    <div className="mx-auto max-w-5xl p-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-panel border border-border-subtle bg-surface p-4">
-        <Link
-          href="/"
-          className="text-[length:var(--hv-text-section)] font-semibold tracking-[0.14em]"
-        >
-          HIREVELO
-        </Link>
-        <nav
-          aria-label="Public navigation"
-          className="flex gap-4 text-[length:var(--hv-text-ui)]"
-        >
-          <Link href="/careers">Careers</Link>
-          <Link href="/sign-in">Sign in</Link>
-          <Link href="/register">Register</Link>
-        </nav>
-      </header>
-      <main>{children}</main>
+    <div className="public-site">
+      <a className="skip-link" href="#main-content">
+        {t("Skip to content")}
+      </a>
+      <PublicHeader role={session?.user.role} />
+      <main id="main-content" className="public-content" tabIndex={-1}>
+        {children}
+      </main>
+      <PublicFooter />
     </div>
   );
 }

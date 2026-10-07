@@ -1,0 +1,406 @@
+/* Marketing layouts share the app's forest identity and semantic tokens. */
+.hirevelo-home {
+  color: var(--hv-ink);
+}
+.hirevelo-home > * + * {
+  margin-top: 88px;
+}
+.hirevelo-home h1 {
+  font-size: clamp(42px, 5.1vw, 72px);
+  line-height: 1.07;
+  letter-spacing: -0.055em;
+  font-weight: 600;
+  max-width: 670px;
+  text-wrap: balance;
+}
+.hirevelo-home h2 {
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.hirevelo-home h3 {
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+.hirevelo-home p {
+  line-height: 1.7;
+}
+.home-hero {
+  padding: 64px 0 40px;
+  gap: 64px;
+}
+.home-hero > section:first-child > p {
+  max-width: 540px;
+  font-size: 18px;
+}
+.home-hero > section:first-child > p + p {
+  font-size: 14px;
+}
+.home-hero [data-slot="button"] {
+  min-height: 48px;
+  white-space: normal;
+  padding-inline: 22px;
+}
+.home-candidates {
+  position: relative;
+  isolation: isolate;
+  min-height: 470px;
+  background: var(--hv-mint);
+  border-radius: 48% 48% 32px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 36px;
+  gap: 14px;
+}
+.home-candidates::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 220px;
+  height: 220px;
+  background: var(--hv-peach);
+  border-radius: 50%;
+  left: -28px;
+  top: -20px;
+}
+.home-candidate {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--hv-surface);
+  border: 1px solid var(--hv-border);
+  border-radius: 16px;
+  box-shadow: 0 12px 28px -16px rgb(18 76 60 / 24%);
+}
+.home-candidate:nth-child(even) {
+  margin-left: 28px;
+}
+.home-candidate:nth-child(odd) {
+  margin-right: 24px;
+}
+.home-candidate p {
+  font-size: 14px;
+  font-weight: 500;
+}
+.home-avatar {
+  flex-shrink: 0;
+  background: var(--hv-surface-subtle);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+}
+.home-avatar .home-icon {
+  width: 26px;
+  height: 26px;
+}
+.home-scene-caption {
+  font-size: 12px;
+  color: var(--hv-muted);
+  text-align: center;
+  margin-top: 8px;
+}
+.home-benefits {
+  border-block: 1px solid var(--hv-border);
+  padding-block: 28px;
+}
+.home-benefit {
+  background: transparent;
+  padding: 16px 24px;
+}
+.home-benefit + .home-benefit {
+  border-left: 1px solid var(--hv-border);
+}
+.home-benefit h2 {
+  font-size: 22px;
+}
+.home-benefit-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--hv-accent-ink);
+}
+.home-showcase {
+  background: var(--hv-mint);
+  padding: 48px;
+  border-radius: 28px;
+}
+.home-product-scene {
+  position: relative;
+  max-width: 740px;
+  margin-inline: auto;
+  padding: 24px 0;
+}
+.home-floating-icon {
+  display: none;
+}
+.home-product-window,
+.home-workflow-window {
+  border: 1px solid var(--hv-border);
+  background: var(--hv-surface);
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: left;
+}
+.home-window-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--hv-border-subtle);
+  font-size: 14px;
+  font-weight: 600;
+}
+.home-window-heading > .home-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--hv-accent-ink);
+}
+.home-window-heading [data-slot="badge"] {
+  margin-left: auto;
+}
+.home-window-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 28px;
+}
+.home-document {
+  border: 1px solid var(--hv-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.home-document > .home-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--hv-accent-ink);
+  margin-bottom: 16px;
+}
+.home-document h3,
+.home-application-summary h3 {
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+.home-document p {
+  font-size: 13px;
+  margin-top: 24px;
+}
+.home-document-lines {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.home-document-lines i {
+  display: block;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--hv-surface-active);
+}
+.home-document-lines i:nth-child(2n) {
+  width: 75%;
+}
+.home-application-summary {
+  padding: 8px;
+}
+.home-profile {
+  display: flex;
+  margin-bottom: 16px;
+  color: var(--hv-accent-ink);
+}
+.home-profile .home-icon {
+  width: 36px;
+  height: 36px;
+}
+.home-application-summary ol {
+  display: grid;
+  gap: 12px;
+}
+.home-application-summary li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.home-workflow > ol {
+  display: grid;
+  gap: 48px;
+}
+.home-workflow > ol > li {
+  gap: 64px;
+}
+.home-workflow-visual {
+  padding: 32px;
+  border-radius: 24px;
+  background: var(--hv-mint);
+}
+.home-workflow-visual-1 {
+  background: var(--hv-peach);
+}
+.home-workflow-visual-2 {
+  background: var(--hv-surface-active);
+}
+.home-preview-content {
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+}
+.home-preview-content h3 {
+  font-size: 16px;
+}
+.home-preview-content p {
+  font-size: 13px;
+  color: var(--hv-muted);
+}
+.home-published {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--hv-success-ink);
+}
+.home-published .home-icon {
+  width: 20px;
+  height: 20px;
+}
+.home-review-list {
+  display: grid;
+  gap: 20px;
+  font-size: 14px;
+}
+.home-review-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.home-review-list .home-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--hv-accent-ink);
+}
+.home-decision-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.home-faq {
+  background: transparent;
+  padding: 24px 0;
+}
+.home-faq details {
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1px solid var(--hv-border);
+}
+.home-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  list-style: none;
+  font-size: 16px;
+  min-height: 64px;
+}
+.home-faq summary::-webkit-details-marker {
+  display: none;
+}
+.home-faq summary svg {
+  flex-shrink: 0;
+  transition: transform 0.18s;
+}
+.home-faq details[open] summary svg {
+  transform: rotate(180deg);
+}
+.home-final-cta {
+  background: var(--hv-accent-solid);
+  color: white;
+  border-radius: 24px;
+  padding: 48px;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+.home-final-cta p {
+  max-width: 600px;
+  color: var(--hv-mint);
+  margin-top: 16px;
+}
+.home-final-cta [data-slot="button"] {
+  color: var(--hv-ink);
+  background: white;
+}
+@media (max-width: 767px) {
+  .hirevelo-home > * + * {
+    margin-top: 48px;
+  }
+  .home-hero {
+    padding: 28px 0 8px;
+    gap: 40px;
+  }
+  .home-candidates {
+    min-height: 390px;
+    padding: 24px 16px;
+    margin-inline: 8px;
+  }
+  .home-candidates::before {
+    width: 160px;
+    height: 160px;
+    left: -8px;
+  }
+  .home-candidate {
+    padding: 12px;
+  }
+  .home-candidate:nth-child(even) {
+    margin-left: 12px;
+  }
+  .home-candidate:nth-child(odd) {
+    margin-right: 12px;
+  }
+  .home-benefit + .home-benefit {
+    border-left: 0;
+    border-top: 1px solid var(--hv-border);
+  }
+  .home-benefit {
+    padding-inline: 0;
+  }
+  .home-showcase,
+  .home-final-cta {
+    padding: 28px 20px;
+  }
+  .home-window-body {
+    padding: 16px;
+    gap: 16px;
+  }
+  .home-workflow > ol > li {
+    gap: 24px;
+  }
+  .home-workflow-visual {
+    padding: 20px;
+  }
+}
+@media (max-width: 400px) {
+  .home-window-body {
+    grid-template-columns: 1fr;
+  }
+  .home-application-summary ol {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.hirevelo-home .public-job-card h2 {
+  font-size: var(--hv-text-title);
+  line-height: var(--hv-leading-title);
+  letter-spacing: -0.02em;
+}
+.hirevelo-home [data-reveal="waiting"]:not(:focus-within) {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hirevelo-home [data-reveal="waiting"]:not(:focus-within) {
+    opacity: 1;
+  }
+}
