@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 import { env } from "./src/lib/env";
 const development = env.NODE_ENV !== "production";
 const nextConfig: NextConfig = {
@@ -20,4 +21,7 @@ const nextConfig: NextConfig = {
     ];
   },
 };
-export default nextConfig;
+export default bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+  openAnalyzer: false,
+})(nextConfig);
