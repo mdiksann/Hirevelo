@@ -1,3 +1,4 @@
+import { getTranslator } from "@/lib/i18n/server";
 import Link from "next/link";
 import { getMyApplications } from "@/lib/queries/applications";
 import { applicationListSchema } from "@/lib/validation/applications";
@@ -10,31 +11,32 @@ export default async function Page({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await getTranslator();
   const parsed = applicationListSchema.safeParse(await searchParams);
   if (!parsed.success)
     return (
       <>
-        <PageHeader title="My applications" />
+        <PageHeader title={t("My applications")} />
         <EmptyState
-          title="Invalid filters"
-          message="Reset the filters and try again."
-          action={<Link href="/applications">Reset filters</Link>}
+          title={t("Invalid filters")}
+          message={t("Reset the filters and try again.")}
+          action={<Link href="/applications">{t("Reset filters")}</Link>}
         />
       </>
     );
   const result = await getMyApplications({ page: parsed.data.page });
   return (
     <>
-      <PageHeader title="My applications" />
+      <PageHeader title={t("My applications")} />
       {result.items.length ? (
         <ApplicationTable applications={result.items} />
       ) : (
         <EmptyState
-          title="No applications yet"
-          message="Browse open jobs and submit your first application."
+          title={t("No applications yet")}
+          message={t("Browse open jobs and submit your first application.")}
           action={
             <Link href="/careers" className="text-accent-ink">
-              Browse careers
+              {t("Browse careers")}
             </Link>
           }
         />

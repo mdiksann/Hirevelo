@@ -23,6 +23,7 @@ export type ApplicationDetailDto = ApplicationDto & {
 };
 export type RecruiterApplicationDto = ApplicationDetailDto & {
   candidate: { id: string; name: string; email: string };
+  jobArchived: boolean;
   lastActivityAt: string;
 };
 const summarySelect = {
@@ -41,6 +42,7 @@ const detailSelect = {
 const recruiterSelect = {
   ...detailSelect,
   candidate: { select: { id: true, name: true, email: true } },
+  job: { select: { ...summarySelect.job.select, status: true } },
   activities: {
     select: { createdAt: true },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
@@ -147,6 +149,7 @@ export async function searchApplications(input: unknown = {}) {
   const items: RecruiterApplicationDto[] = rows.map((row) => ({
     ...summary(row),
     candidate: row.candidate,
+    jobArchived: row.job.status === "ARCHIVED",
     coverNote: row.coverNote,
     rejectionReason: row.rejectionReason,
     cvFile: row.cvFile,
@@ -169,6 +172,7 @@ export async function getApplicationForRecruiter(
     ? {
         ...summary(row),
         candidate: row.candidate,
+        jobArchived: row.job.status === "ARCHIVED",
         coverNote: row.coverNote,
         rejectionReason: row.rejectionReason,
         cvFile: row.cvFile,

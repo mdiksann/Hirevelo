@@ -1,3 +1,5 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import Link from "next/link";
 import {
   Table,
@@ -16,10 +18,13 @@ export function CandidateTable({
 }: {
   applications: RecruiterApplicationDto[];
 }) {
+  const t = useTranslator();
   return (
     <div className="rounded-panel border border-border-subtle bg-surface">
       <Table>
-        <TableCaption className="sr-only">Candidate applications</TableCaption>
+        <TableCaption className="sr-only">
+          {t("Candidate applications")}
+        </TableCaption>
         <TableHeader>
           <TableRow>
             {["Candidate", "Stage", "Job", "Applied", "Last activity"].map(
@@ -29,7 +34,7 @@ export function CandidateTable({
                   scope="col"
                   className={index > 1 ? "hidden md:table-cell" : undefined}
                 >
-                  {label}
+                  {t(label)}
                 </TableHead>
               ),
             )}
@@ -52,25 +57,37 @@ export function CandidateTable({
                   {row.candidate.email}
                 </p>
                 <dl className="mt-2 text-xs text-muted-foreground md:hidden">
-                  <dt>Job</dt>
-                  <dd>{row.job.title}</dd>
-                  <dt>Applied</dt>
-                  <dd>{formatDate(row.appliedAt)}</dd>
-                  <dt>Last activity</dt>
-                  <dd>{formatDate(row.lastActivityAt)}</dd>
+                  <dt>{t("Job")}</dt>
+                  <dd>
+                    <Link
+                      href={`/recruiter/jobs/${row.job.id}`}
+                      className="text-accent-ink"
+                    >
+                      {row.job.title}
+                    </Link>
+                  </dd>
+                  <dt>{t("Applied")}</dt>
+                  <dd>{formatDate(row.appliedAt, t.locale)}</dd>
+                  <dt>{t("Last activity")}</dt>
+                  <dd>{formatDate(row.lastActivityAt, t.locale)}</dd>
                 </dl>
               </TableCell>
               <TableCell>
                 <StageBadge stage={row.stage} />
               </TableCell>
               <TableCell className="hidden md:table-cell whitespace-normal">
-                {row.job.title}
+                <Link
+                  href={`/recruiter/jobs/${row.job.id}`}
+                  className="text-accent-ink"
+                >
+                  {row.job.title}
+                </Link>
               </TableCell>
               <TableCell className="hidden md:table-cell tabular-nums">
-                {formatDate(row.appliedAt)}
+                {formatDate(row.appliedAt, t.locale)}
               </TableCell>
               <TableCell className="hidden md:table-cell tabular-nums">
-                {formatDate(row.lastActivityAt)}
+                {formatDate(row.lastActivityAt, t.locale)}
               </TableCell>
             </TableRow>
           ))}

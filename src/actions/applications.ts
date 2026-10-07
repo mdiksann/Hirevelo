@@ -79,6 +79,8 @@ export async function submitApplication(
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+    revalidatePath("/recruiter");
+    revalidatePath("/recruiter/dashboard");
     revalidatePath("/applications");
     revalidatePath(`/careers/${result.slug}`);
     revalidatePath(`/careers/${result.slug}/apply`);

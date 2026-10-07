@@ -1,3 +1,4 @@
+import { getTranslator } from "@/lib/i18n/server";
 import Link from "next/link";
 import { searchApplications } from "@/lib/queries/applications";
 import { getJobsForRecruiter, getJobForRecruiter } from "@/lib/queries/jobs";
@@ -12,15 +13,18 @@ export default async function Page({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await getTranslator();
   const parsed = applicationListSchema.safeParse(await searchParams);
   if (!parsed.success)
     return (
       <>
-        <PageHeader title="Candidates" />
+        <PageHeader title={t("Candidates")} />
         <EmptyState
-          title="Invalid filters"
-          message="Reset the filters and try again."
-          action={<Link href="/recruiter/candidates">Reset filters</Link>}
+          title={t("Invalid filters")}
+          message={t("Reset the filters and try again.")}
+          action={
+            <Link href="/recruiter/candidates">{t("Reset filters")}</Link>
+          }
         />
       </>
     );
@@ -35,7 +39,7 @@ export default async function Page({
   }
   return (
     <>
-      <PageHeader title="Candidates" />
+      <PageHeader title={t("Candidates")} />
       <CandidateFilters
         key={params.q}
         q={params.q}
@@ -50,8 +54,10 @@ export default async function Page({
         <CandidateTable applications={result.items} />
       ) : (
         <EmptyState
-          title="No candidates found"
-          message="Change your filters or publish a job to receive applications."
+          title={t("No candidates found")}
+          message={t(
+            "Change your filters or publish a job to receive applications.",
+          )}
         />
       )}
       <ApplicationPagination

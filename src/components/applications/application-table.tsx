@@ -1,3 +1,5 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import Link from "next/link";
 import {
   Table,
@@ -16,16 +18,17 @@ export function ApplicationTable({
 }: {
   applications: ApplicationDto[];
 }) {
+  const t = useTranslator();
   return (
     <div className="rounded-panel border border-border-subtle bg-surface">
       <Table>
-        <TableCaption className="sr-only">My applications</TableCaption>
+        <TableCaption className="sr-only">{t("My applications")}</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead scope="col">Job</TableHead>
-            <TableHead scope="col">Stage</TableHead>
+            <TableHead scope="col">{t("Job")}</TableHead>
+            <TableHead scope="col">{t("Stage")}</TableHead>
             <TableHead scope="col" className="hidden md:table-cell">
-              Applied
+              {t("Applied")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -46,14 +49,15 @@ export function ApplicationTable({
                   {row.job.location}
                 </p>
                 <p className="text-xs text-muted-foreground md:hidden">
-                  Applied {formatDate(row.appliedAt)}
+                  {t("Applied")}
+                  {formatDate(row.appliedAt, t.locale)}
                 </p>
               </TableCell>
               <TableCell>
                 <StageBadge stage={row.stage} />
               </TableCell>
               <TableCell className="hidden md:table-cell tabular-nums">
-                {formatDate(row.appliedAt)}
+                {formatDate(row.appliedAt, t.locale)}
               </TableCell>
             </TableRow>
           ))}

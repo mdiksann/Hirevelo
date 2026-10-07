@@ -1,4 +1,5 @@
 "use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -11,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { stages } from "@/lib/validation/applications";
+import { JobButton as Button } from "@/components/jobs/job-button";
+import { stages, applicationListSchema } from "@/lib/validation/applications";
 import { stageLabels } from "@/lib/applications";
 type Props = {
   q: string;
@@ -19,7 +21,12 @@ type Props = {
   jobPagination: { page: number; pageSize: number; total: number };
 };
 export function CandidateFilters({ q, jobs, jobPagination }: Props) {
+  const t = useTranslator();
   const [search, setSearch] = useState(q);
+  const [filterError, setFilterError] = useState<{
+    field: string;
+    message: string;
+  }>();
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const pathname = usePathname();
@@ -41,6 +48,16 @@ export function CandidateFilters({ q, jobs, jobPagination }: Props) {
     else params.delete(key);
     params.set("q", search.trim());
     params.delete("page");
+    const parsed = applicationListSchema.safeParse(Object.fromEntries(params));
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      setFilterError({
+        field: String(issue?.path[0] ?? "_form"),
+        message: issue?.message ?? "Please check your filters.",
+      });
+      return;
+    }
+    setFilterError(undefined);
     startTransition(() => router.replace(`${pathname}?${params}`));
   }
   const params = new URLSearchParams(query);
@@ -53,7 +70,7 @@ export function CandidateFilters({ q, jobs, jobPagination }: Props) {
     <div aria-busy={pending} className="mb-4 flex flex-wrap items-end gap-4">
       <div>
         <Label htmlFor="candidate-search" className="mb-2">
-          Search candidates
+          {t("Search candidates")}
         </Label>
         <Input
           id="candidate-search"
@@ -79,7 +96,7 @@ export function CandidateFilters({ q, jobs, jobPagination }: Props) {
       ].map((filter) => (
         <div key={filter.key}>
           <Label htmlFor={`filter-${filter.key}`} className="mb-2">
-            {filter.label}
+            {t(filter.label)}
           </Label>
           <Select
             value={params.get(filter.key) ?? "ALL"}
@@ -93,11 +110,11 @@ export function CandidateFilters({ q, jobs, jobPagination }: Props) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">
-                All {filter.label.toLowerCase()}s
+                {t(filter.key === "jobId" ? "All jobs" : "All stages")}
               </SelectItem>
               {filter.options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+                  {filter.key === "stage" ? t(option.label) : option.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -106,18 +123,18 @@ export function CandidateFilters({ q, jobs, jobPagination }: Props) {
             (jobPagination.page > 1 ||
               jobPagination.total > jobPagination.pageSize) && (
               <nav
-                aria-label="Job filter options"
+                aria-label={t("Job filter options")}
                 className="mt-2 flex gap-4 text-xs text-accent-ink"
               >
                 {jobPagination.page > 1 && (
                   <Link href={jobPageHref(jobPagination.page - 1)}>
-                    Previous jobs
+                    {t("Previous jobs")}
                   </Link>
                 )}
                 {jobPagination.page * jobPagination.pageSize <
                   jobPagination.total && (
                   <Link href={jobPageHref(jobPagination.page + 1)}>
-                    More jobs
+                    {t("More jobs")}
                   </Link>
                 )}
               </nav>
@@ -130,19 +147,48 @@ export function CandidateFilters({ q, jobs, jobPagination }: Props) {
       ].map((filter) => (
         <div key={filter.key}>
           <Label htmlFor={filter.key} className="mb-2">
-            {filter.label}
+            {t(filter.label)}
           </Label>
           <Input
             id={filter.key}
             type="date"
             value={params.get(filter.key) ?? ""}
+            aria-invalid={filterError?.field === filter.key}
+            aria-describedby={
+              filterError?.field === filter.key
+                ? "candidate-filter-error"
+                : undefined
+            }
             onChange={(e) => update(filter.key, e.target.value)}
           />
         </div>
       ))}
+      {(query || search) && (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending}
+          onClick={() => {
+            setSearch("");
+            setFilterError(undefined);
+            startTransition(() => router.replace(pathname));
+          }}
+        >
+          {t("Reset filters")}
+        </Button>
+      )}
+      {filterError && (
+        <p
+          id="candidate-filter-error"
+          role="alert"
+          className="w-full text-xs text-[var(--hv-danger-ink)]"
+        >
+          {t(filterError.message)}
+        </p>
+      )}
       {pending && (
         <p role="status" className="text-xs text-muted-foreground">
-          Updating candidates…
+          {t("Updating candidates…")}
         </p>
       )}
     </div>

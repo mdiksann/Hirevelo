@@ -1,4 +1,5 @@
 "use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,6 +16,7 @@ type Failure = {
   status?: number;
 };
 export function ApplyForm({ jobId }: { jobId: string }) {
+  const t = useTranslator();
   const router = useRouter();
   const summary = useRef<HTMLDivElement>(null);
   const [coverNote, setCoverNote] = useState("");
@@ -57,9 +59,9 @@ export function ApplyForm({ jobId }: { jobId: string }) {
           const result = await response.json();
           if (!response.ok) {
             if (response.status === 409)
-              toast.error(result.message, {
+              toast.error(t(result.message), {
                 action: {
-                  label: "My applications",
+                  label: t("My applications"),
                   onClick: () => router.push("/applications"),
                 },
               });
@@ -83,15 +85,15 @@ export function ApplyForm({ jobId }: { jobId: string }) {
         });
         if (!result.ok) {
           if (result.status === 409)
-            toast.error(result.message, {
+            toast.error(t(result.message), {
               action: {
-                label: "My applications",
+                label: t("My applications"),
                 onClick: () => router.push("/applications"),
               },
             });
           return result;
         }
-        toast.success("Application submitted");
+        toast.success(t("Application submitted"));
         router.push("/applications");
         return null;
       } catch {
@@ -117,27 +119,27 @@ export function ApplyForm({ jobId }: { jobId: string }) {
           role="alert"
           className="rounded-control bg-[var(--hv-danger-tint)] p-3 text-sm text-[var(--hv-danger-ink)]"
         >
-          <p>{failure.message}</p>
+          <p>{t(failure.message)}</p>
           {Object.entries(failure.errors ?? {}).map(([field, errors]) => (
             <p key={field}>
               <a
                 className="underline"
                 href={`#${field === "cvFileId" ? "file" : field}`}
               >
-                {errors[0]}
+                {t(errors[0])}
               </a>
             </p>
           ))}
           {failure.status === 409 && (
             <Link className="underline" href="/applications">
-              My applications
+              {t("My applications")}
             </Link>
           )}
         </div>
       )}
       <div>
         <Label htmlFor="coverNote" className="mb-2">
-          Cover note (optional)
+          {t("Cover note (optional)")}
         </Label>
         <Textarea
           id="coverNote"
@@ -151,15 +153,16 @@ export function ApplyForm({ jobId }: { jobId: string }) {
           aria-describedby="coverNote-help coverNote-error"
         />
         <p id="coverNote-help" className="mt-2 text-xs text-muted-foreground">
-          {coverNote.length}/2000 characters
+          {coverNote.length}
+          {t("/2000 characters")}
         </p>
         <p id="coverNote-error" className="text-xs text-[var(--hv-danger-ink)]">
-          {failure?.errors?.coverNote?.[0]}
+          {t(failure?.errors?.coverNote?.[0])}
         </p>
       </div>
       <div>
         <Label htmlFor="file" className="mb-2">
-          CV (required)
+          {t("CV (required)")}
         </Label>
         <Input
           id="file"
@@ -173,22 +176,25 @@ export function ApplyForm({ jobId }: { jobId: string }) {
           onChange={(e) => setFile(e.target.files?.[0])}
         />
         <p id="file-help" className="mt-2 text-xs text-muted-foreground">
-          PDF, DOC, or DOCX, up to 5 MB.
+          {t("PDF, DOC, or DOCX, up to 5 MB.")}
           {file &&
-            ` Selected: ${file.name} (${Math.ceil(file.size / 1024)} KB).`}
+            t(" Selected: {name} ({size} KB).", {
+              name: file.name,
+              size: Math.ceil(file.size / 1024),
+            })}
         </p>
         <p id="file-error" className="text-xs text-[var(--hv-danger-ink)]">
-          {failure?.errors?.file?.[0]}
+          {t(failure?.errors?.file?.[0])}
         </p>
       </div>
       {pending && (
         <p role="status" className="text-sm text-muted-foreground">
-          {phase}
+          {t(phase)}
         </p>
       )}
       <div className="flex justify-end border-t border-border-subtle pt-4">
         <Button type="submit" disabled={pending} aria-busy={pending}>
-          Submit application
+          {t("Submit application")}
         </Button>
       </div>
     </form>

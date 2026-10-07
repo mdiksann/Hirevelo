@@ -61,7 +61,7 @@ test("candidate returns from sign-in, applies by keyboard, sees own status; recr
       .getByLabel("Name", { exact: false })
       .fill("Application test candidate");
     await page.getByLabel("Email").fill(email);
-    await page.getByLabel("Password").fill("Strong-password-1");
+    await page.getByLabel(/^Password/).fill("Strong-password-1");
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(page).toHaveURL(`/careers/${job.slug}/apply`);
     await axe(page);
@@ -107,7 +107,7 @@ test("candidate returns from sign-in, applies by keyboard, sees own status; recr
     ).toBeVisible();
     await page.goto("/recruiter/candidates");
     await expect(
-      page.getByRole("heading", { name: "Page not found" }),
+      page.getByRole("heading", { name: "Recruiter access required" }),
     ).toBeVisible();
     const recruiterContext = await browser.newContext({
       baseURL: "http://127.0.0.1:3100",
@@ -133,9 +133,13 @@ test("candidate returns from sign-in, applies by keyboard, sees own status; recr
       await expect(recruiterPage.getByRole("heading", { level: 1 })).toHaveText(
         "Application test candidate",
       );
-      for (const ticket of ["HF-035", "HF-036", "HF-037"])
+      for (const name of [
+        "Stage actions",
+        "Interview notes",
+        "Activity timeline",
+      ])
         await expect(
-          recruiterPage.getByText(`Coming in ${ticket}.`),
+          recruiterPage.getByRole("heading", { name, exact: true }),
         ).toBeVisible();
       await axe(recruiterPage);
       const cvDownload = recruiterPage.waitForEvent("download");
@@ -198,7 +202,7 @@ test("existing candidate returns to apply after sign-in; upload and application 
   try {
     await page.goto(`/careers/${job.slug}/apply`);
     await page.getByLabel("Email").fill("candidate1@example.com");
-    await page.getByLabel("Password").fill("Demo-password-123");
+    await page.getByLabel(/^Password/).fill("Demo-password-123");
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
     await expect(page).toHaveURL(`/careers/${job.slug}/apply`);
     expect(
@@ -291,9 +295,9 @@ test("seeded rejection reason is visible to its candidate", async ({
   });
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill("candidate3@example.com");
-  await page.getByLabel("Password").fill("Demo-password-123");
+  await page.getByLabel(/^Password/).fill("Demo-password-123");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL("/applications");
   await page.goto(`/applications/${row.id}`);
   await expect(
     page.getByRole("heading", { name: "Rejection reason" }),
