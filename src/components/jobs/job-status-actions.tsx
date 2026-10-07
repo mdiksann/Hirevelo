@@ -1,4 +1,5 @@
 "use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ function StatusAction({
   job: RecruiterJobDto;
   target: JobStatus;
 }) {
+  const t = useTranslator();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
@@ -39,7 +41,10 @@ function StatusAction({
     target === "ARCHIVED"
       ? "Archiving makes this job and its applications read-only."
       : target === "CLOSED"
-        ? `Closing stops new applications. ${job.applicantsCount} existing applications are unaffected.`
+        ? t(
+            "Closing stops new applications. {count} existing applications are unaffected.",
+            { count: job.applicantsCount },
+          )
         : "Publishing makes this job visible on the public careers page.";
   return (
     <Dialog
@@ -60,24 +65,27 @@ function StatusAction({
               : undefined
           }
         >
-          {labels[target]}
+          {t(labels[target])}
         </Button>
       </DialogTrigger>
       <DialogContent
         showCloseButton={false}
         className="rounded-panel p-5 shadow-[var(--hv-shadow-overlay)] sm:max-w-[420px] duration-[140ms]"
       >
-        <DialogTitle>{labels[target]} job</DialogTitle>
-        <DialogDescription>{consequence}</DialogDescription>
+        <DialogTitle>
+          {t(labels[target])}
+          {t(" job")}
+        </DialogTitle>
+        <DialogDescription>{t(consequence)}</DialogDescription>
         {error && (
           <p role="alert" className="text-sm text-[var(--hv-danger-ink)]">
-            {error}
+            {t(error)}
           </p>
         )}
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline" disabled={pending}>
-              Cancel
+              {t("Cancel")}
             </Button>
           </DialogClose>
           <Button
@@ -94,14 +102,18 @@ function StatusAction({
                   });
                   if (!result.ok) {
                     setError(
-                      result.message +
+                      t(result.message) +
                         (result.errors
-                          ? " " + Object.values(result.errors).flat().join(" ")
+                          ? " " +
+                            Object.values(result.errors)
+                              .flat()
+                              .map((message) => t(message))
+                              .join(" ")
                           : ""),
                     );
                     return;
                   }
-                  toast.success(`Job ${target.toLowerCase()}`);
+                  toast.success(t(`Job ${target.toLowerCase()}`));
                   setOpen(false);
                   router.refresh();
                 } catch {
@@ -110,16 +122,18 @@ function StatusAction({
               })
             }
           >
-            {pending ? (
-              <>
-                <LoaderCircle
-                  aria-hidden="true"
-                  className="size-3.5 animate-spin motion-reduce:animate-none"
-                />
-                <span className="sr-only">Updating status</span>
-              </>
-            ) : (
-              labels[target]
+            {t(
+              pending ? (
+                <>
+                  <LoaderCircle
+                    aria-hidden="true"
+                    className="size-3.5 animate-spin motion-reduce:animate-none"
+                  />
+                  <span className="sr-only">{t("Updating status")}</span>
+                </>
+              ) : (
+                labels[target]
+              ),
             )}
           </Button>
         </DialogFooter>
@@ -128,10 +142,11 @@ function StatusAction({
   );
 }
 export function JobStatusActions({ job }: { job: RecruiterJobDto }) {
+  const t = useTranslator();
   if (job.status === "ARCHIVED")
     return (
       <p className="text-sm text-muted-foreground">
-        Archived jobs are read-only.
+        {t("Archived jobs are read-only.")}
       </p>
     );
   return (

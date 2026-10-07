@@ -1,4 +1,5 @@
 "use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { JobButton as Button } from "@/components/jobs/job-button";
 import { jobStatuses } from "@/lib/validation/jobs";
 import { jobStatusLabels } from "@/lib/jobs";
 export function JobFilters({
@@ -21,6 +23,7 @@ export function JobFilters({
   status?: string;
   recruiter?: boolean;
 }) {
+  const t = useTranslator();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,7 +44,7 @@ export function JobFilters({
     <div className="mb-4 flex flex-wrap items-end gap-4" aria-busy={pending}>
       <div className="w-full sm:w-60">
         <Label htmlFor="job-search" className="mb-2">
-          Search jobs
+          {t("Search jobs")}
         </Label>
         <Input
           className="shadow-none"
@@ -55,7 +58,7 @@ export function JobFilters({
       {recruiter && (
         <div>
           <Label htmlFor="job-status" className="mb-2">
-            Status
+            {t("Status")}
           </Label>
           <Select
             value={status ?? "ALL"}
@@ -71,19 +74,32 @@ export function JobFilters({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">All statuses</SelectItem>
+              <SelectItem value="ALL">{t("All statuses")}</SelectItem>
               {jobStatuses.map((value) => (
                 <SelectItem key={value} value={value}>
-                  {jobStatusLabels[value]}
+                  {t(jobStatusLabels[value])}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
       )}
+      {(q || status || search) && (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending}
+          onClick={() => {
+            setSearch("");
+            startTransition(() => router.replace(pathname));
+          }}
+        >
+          {t("Reset filters")}
+        </Button>
+      )}
       {pending && (
         <p role="status" className="text-xs text-muted-foreground">
-          Updating jobs…
+          {t("Updating jobs…")}
         </p>
       )}
     </div>

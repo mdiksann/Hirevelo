@@ -1,3 +1,4 @@
+import { getTranslator } from "@/lib/i18n/server";
 import Link from "next/link";
 import { getJobsForRecruiter } from "@/lib/queries/jobs";
 import { jobListQuerySchema } from "@/lib/validation/jobs";
@@ -12,15 +13,16 @@ export default async function Page({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await getTranslator();
   const parsed = jobListQuerySchema.safeParse(await searchParams);
   if (!parsed.success)
     return (
       <>
-        <PageHeader title="Jobs" />
+        <PageHeader title={t("Jobs")} />
         <EmptyState
-          title="Invalid filters"
-          message="Reset the filters and try again."
-          action={<Link href="/recruiter/jobs">Reset filters</Link>}
+          title={t("Invalid filters")}
+          message={t("Reset the filters and try again.")}
+          action={<Link href="/recruiter/jobs">{t("Reset filters")}</Link>}
         />
       </>
     );
@@ -39,11 +41,11 @@ export default async function Page({
   return (
     <>
       <PageHeader
-        title="Jobs"
+        title={t("Jobs")}
         tabs={tabs}
         actions={
           <Button asChild>
-            <Link href="/recruiter/jobs/new">New job</Link>
+            <Link href="/recruiter/jobs/new">{t("New job")}</Link>
           </Button>
         }
       />
@@ -57,11 +59,11 @@ export default async function Page({
         <JobTable jobs={jobs.items} />
       ) : (
         <EmptyState
-          title="No jobs found"
-          message="Change your filters or create a job."
+          title={t("No jobs found")}
+          message={t("Change your filters or create a job.")}
           action={
             <Button asChild>
-              <Link href="/recruiter/jobs/new">New job</Link>
+              <Link href="/recruiter/jobs/new">{t("New job")}</Link>
             </Button>
           }
         />

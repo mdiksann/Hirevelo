@@ -1,3 +1,4 @@
+import { createTranslator, type Locale } from "@/lib/i18n";
 import type { JobStatus } from "@/lib/validation/jobs";
 export const JOB_TRANSITIONS: Record<JobStatus, JobStatus[]> = {
   DRAFT: ["PUBLISHED", "ARCHIVED"],
@@ -20,11 +21,16 @@ export const employmentLabels = {
   CONTRACT: "Contract",
   INTERNSHIP: "Internship",
 };
-export function formatSalary(min: number | null, max: number | null) {
+export function formatSalary(
+  min: number | null,
+  max: number | null,
+  locale: Locale = "en",
+) {
+  const t = createTranslator(locale);
   const format = (value: number) =>
-    new Intl.NumberFormat("en-US").format(value);
+    new Intl.NumberFormat(locale === "id" ? "id-ID" : "en-US").format(value);
   if (min !== null && max !== null) return `${format(min)}–${format(max)}`;
-  if (min !== null) return `From ${format(min)}`;
-  if (max !== null) return `Up to ${format(max)}`;
-  return "Salary not specified";
+  if (min !== null) return t("From {amount}", { amount: format(min) });
+  if (max !== null) return t("Up to {amount}", { amount: format(max) });
+  return t("Salary not specified");
 }

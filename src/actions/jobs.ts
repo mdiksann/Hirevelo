@@ -23,6 +23,8 @@ import {
 import { handleActionError, type ActionResult } from "@/types/action-result";
 
 function revalidate(job: RecruiterJobDto) {
+  revalidatePath("/recruiter");
+  revalidatePath("/recruiter/dashboard");
   revalidatePath("/recruiter/jobs");
   revalidatePath(`/recruiter/jobs/${job.id}`);
   revalidatePath(`/recruiter/jobs/${job.id}/edit`);

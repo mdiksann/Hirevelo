@@ -16,7 +16,7 @@ export function JobButton({
       {...props}
       variant={variant}
       className={cn(
-        "rounded-control text-[length:var(--hv-text-ui)] max-sm:min-h-10",
+        "rounded-control text-[length:var(--hv-text-ui)] min-h-11",
         variants[variant as keyof typeof variants],
         className,
       )}

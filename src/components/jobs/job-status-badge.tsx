@@ -1,3 +1,5 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import { Badge } from "@/components/ui/badge";
 import { jobStatusLabels } from "@/lib/jobs";
 import type { JobStatus } from "@/lib/validation/jobs";
@@ -8,9 +10,10 @@ const styles: Record<JobStatus, string> = {
   ARCHIVED: "bg-[var(--hv-surface-active)] text-subtle",
 };
 export function JobStatusBadge({ status }: { status: JobStatus }) {
+  const t = useTranslator();
   return (
     <Badge className={`h-[22px] px-[9px] font-semibold ${styles[status]}`}>
-      {jobStatusLabels[status]}
+      {t(jobStatusLabels[status])}
     </Badge>
   );
 }

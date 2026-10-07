@@ -1,3 +1,5 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import Link from "next/link";
 import {
   Table,
@@ -13,10 +15,11 @@ import { JobRowActions } from "@/components/jobs/job-row-actions";
 import { cn, formatDate } from "@/lib/utils";
 import type { RecruiterJobDto } from "@/lib/queries/jobs";
 export function JobTable({ jobs }: { jobs: RecruiterJobDto[] }) {
+  const t = useTranslator();
   return (
     <div className="rounded-panel border border-border-subtle bg-surface">
       <Table>
-        <TableCaption className="sr-only">Recruiter jobs</TableCaption>
+        <TableCaption className="sr-only">{t("Recruiter jobs")}</TableCaption>
         <TableHeader>
           <TableRow className="border-border-subtle hover:bg-surface">
             {[
@@ -35,7 +38,7 @@ export function JobTable({ jobs }: { jobs: RecruiterJobDto[] }) {
                   index > 1 && index < 5 && "hidden md:table-cell",
                 )}
               >
-                {label}
+                {t(label)}
               </TableHead>
             ))}
           </TableRow>
@@ -55,16 +58,28 @@ export function JobTable({ jobs }: { jobs: RecruiterJobDto[] }) {
                 </Link>
                 <dl className="mt-2 space-y-1 text-xs text-muted-foreground md:hidden">
                   <div>
-                    <dt className="inline">Applicants: </dt>
-                    <dd className="inline">{job.applicantsCount}</dd>
+                    <dt className="inline">{t("Applicants: ")}</dt>
+                    <dd className="inline">
+                      <Link
+                        href={`/recruiter/candidates?jobId=${job.id}`}
+                        className="text-accent-ink"
+                        aria-label={t("View applicants for {title}", {
+                          title: job.title,
+                        })}
+                      >
+                        {job.applicantsCount}
+                      </Link>
+                    </dd>
                   </div>
                   <div>
-                    <dt className="sr-only">Location</dt>
+                    <dt className="sr-only">{t("Location")}</dt>
                     <dd>{job.location}</dd>
                   </div>
                   <div>
-                    <dt className="inline">Updated: </dt>
-                    <dd className="inline">{formatDate(job.updatedAt)}</dd>
+                    <dt className="inline">{t("Updated: ")}</dt>
+                    <dd className="inline">
+                      {formatDate(job.updatedAt, t.locale)}
+                    </dd>
                   </div>
                 </dl>
               </TableCell>
@@ -72,13 +87,21 @@ export function JobTable({ jobs }: { jobs: RecruiterJobDto[] }) {
                 <JobStatusBadge status={job.status} />
               </TableCell>
               <TableCell className="hidden md:table-cell">
-                {job.applicantsCount}
+                <Link
+                  href={`/recruiter/candidates?jobId=${job.id}`}
+                  className="text-accent-ink"
+                  aria-label={t("View applicants for {title}", {
+                    title: job.title,
+                  })}
+                >
+                  {job.applicantsCount}
+                </Link>
               </TableCell>
               <TableCell className="hidden md:table-cell">
                 {job.location}
               </TableCell>
               <TableCell className="hidden md:table-cell text-xs text-muted-foreground">
-                {formatDate(job.updatedAt)}
+                {formatDate(job.updatedAt, t.locale)}
               </TableCell>
               <TableCell className="text-right">
                 <JobRowActions

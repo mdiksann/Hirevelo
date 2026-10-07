@@ -1,3 +1,5 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import Link from "next/link";
 export function JobPagination({
   path,
@@ -14,6 +16,7 @@ export function JobPagination({
   pageSize: number;
   total: number;
 }) {
+  const t = useTranslator();
   const href = (target: number) => {
     const params = new URLSearchParams({ q, page: String(target) });
     if (status) params.set("status", status);
@@ -21,14 +24,16 @@ export function JobPagination({
   };
   return (
     <nav
-      aria-label="Jobs pagination"
+      aria-label={t("Jobs pagination")}
       className="mt-4 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground"
     >
       <p>
-        {total === 0 || (page - 1) * pageSize >= total
-          ? "0"
-          : `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)}`}{" "}
-        of {total}
+        {t(
+          total === 0 || (page - 1) * pageSize >= total
+            ? "0"
+            : `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, total)}`,
+        )}{" "}
+        {t("of")} {total}
       </p>
       <div className="flex gap-4">
         {page > 1 && (
@@ -36,7 +41,7 @@ export function JobPagination({
             href={href(page - 1)}
             className="inline-flex min-h-8 items-center text-accent-ink max-sm:min-h-10"
           >
-            Previous
+            {t("Previous")}
           </Link>
         )}
         {page * pageSize < total && (
@@ -44,7 +49,7 @@ export function JobPagination({
             href={href(page + 1)}
             className="inline-flex min-h-8 items-center text-accent-ink max-sm:min-h-10"
           >
-            Next
+            {t("Next")}
           </Link>
         )}
       </div>

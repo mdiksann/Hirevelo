@@ -1,4 +1,5 @@
 "use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
@@ -28,6 +29,7 @@ const fields = [
   { name: "salaryMax", label: "Salary maximum" },
 ] as const;
 export function JobForm({ job }: { job?: RecruiterJobDto }) {
+  const t = useTranslator();
   const router = useRouter();
   const summary = useRef<HTMLDivElement>(null);
   const [values, setValues] = useState({
@@ -54,7 +56,7 @@ export function JobForm({ job }: { job?: RecruiterJobDto }) {
           ? await updateJob({ ...parsed.data, id: job.id })
           : await createJob(parsed.data);
         if (!result.ok) return result;
-        toast.success(job ? "Job updated" : "Draft created");
+        toast.success(t(job ? "Job updated" : "Draft created"));
         router.push(`/recruiter/jobs/${result.data.id}`);
         return null;
       } catch {
@@ -80,18 +82,18 @@ export function JobForm({ job }: { job?: RecruiterJobDto }) {
           tabIndex={-1}
           className="rounded-control bg-[var(--hv-danger-tint)] p-3 text-sm text-[var(--hv-danger-ink)]"
         >
-          <p>{failure.message}</p>
+          <p>{t(failure.message)}</p>
           {Object.entries(failure.errors ?? {}).map(([field, messages]) => (
             <p key={field}>
               <a href={`#${field}`} className="underline">
-                {messages[0]}
+                {t(messages[0])}
               </a>
             </p>
           ))}
         </div>
       )}
       <h2 className="text-[length:var(--hv-text-title)] font-semibold">
-        Basics
+        {t("Basics")}
       </h2>
       {fields.map((field) => {
         const salary = field.name === "salaryMin" || field.name === "salaryMax";
@@ -120,11 +122,11 @@ export function JobForm({ job }: { job?: RecruiterJobDto }) {
           >
             {field.name === "salaryMin" && (
               <h2 className="mb-4 text-[length:var(--hv-text-title)] font-semibold">
-                Compensation
+                {t("Compensation")}
               </h2>
             )}
             <Label htmlFor={field.name} className="mb-2">
-              {field.label}
+              {t(field.label)}
               {!salary && (
                 <span
                   aria-hidden="true"
@@ -155,7 +157,7 @@ export function JobForm({ job }: { job?: RecruiterJobDto }) {
             {field.name === "location" && (
               <div className="mt-4">
                 <Label htmlFor="employmentType" className="mb-2">
-                  Employment type
+                  {t("Employment type")}
                   <span
                     aria-hidden="true"
                     className="text-[var(--hv-danger-ink)]"
@@ -190,7 +192,7 @@ export function JobForm({ job }: { job?: RecruiterJobDto }) {
                   <SelectContent>
                     {employmentTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {employmentLabels[type]}
+                        {t(employmentLabels[type])}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -200,7 +202,7 @@ export function JobForm({ job }: { job?: RecruiterJobDto }) {
                     id="employmentType-error"
                     className="mt-2 text-xs text-[var(--hv-danger-ink)]"
                   >
-                    {failure.errors.employmentType[0]}
+                    {t(failure.errors.employmentType[0])}
                   </p>
                 )}
               </div>
@@ -210,31 +212,43 @@ export function JobForm({ job }: { job?: RecruiterJobDto }) {
                 id={`${field.name}-error`}
                 className="mt-2 text-xs text-[var(--hv-danger-ink)]"
               >
-                {error}
+                {t(error)}
               </p>
             )}
           </div>
         );
       })}
-      <div className="flex justify-end border-t border-border-subtle pt-4">
+      <div className="flex justify-end gap-2 border-t border-border-subtle pt-4">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending}
+          onClick={() =>
+            router.push(job ? `/recruiter/jobs/${job.id}` : "/recruiter/jobs")
+          }
+        >
+          {t("Cancel")}
+        </Button>
         <Button
           disabled={pending}
           aria-busy={pending}
           type="submit"
           className="min-w-32"
         >
-          {pending ? (
-            <>
-              <LoaderCircle
-                aria-hidden="true"
-                className="size-3.5 animate-spin motion-reduce:animate-none"
-              />
-              <span className="sr-only">Saving job</span>
-            </>
-          ) : job ? (
-            "Save changes"
-          ) : (
-            "Save as draft"
+          {t(
+            pending ? (
+              <>
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="size-3.5 animate-spin motion-reduce:animate-none"
+                />
+                <span className="sr-only">{t("Saving job")}</span>
+              </>
+            ) : job ? (
+              "Save changes"
+            ) : (
+              "Save as draft"
+            ),
           )}
         </Button>
       </div>

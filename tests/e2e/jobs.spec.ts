@@ -36,6 +36,13 @@ test("recruiter creates, edits, publishes, closes, reopens and archives a job", 
     page.getByRole("heading", { level: 1, name: title }),
   ).toBeVisible();
   await expect(page.getByText("Draft", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Preview job" }).click();
+  const preview = page.getByRole("dialog", { name: title });
+  for (const paragraph of description.split("\n\n"))
+    await expect(preview.getByText(paragraph, { exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(preview).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Preview job" })).toBeFocused();
   await page.getByRole("link", { name: "Edit job", exact: true }).click();
   await expect(
     page.getByRole("textbox", { name: "Title", exact: true }),
@@ -77,6 +84,9 @@ test("recruiter creates, edits, publishes, closes, reopens and archives a job", 
   const publicContext = await browser.newContext({
     baseURL: "http://127.0.0.1:3100",
   });
+  await publicContext.addCookies([
+    { name: "hirevelo-language", value: "en", url: "http://127.0.0.1:3100" },
+  ]);
   const visitor = await publicContext.newPage();
   try {
     await visitor.goto(`/careers?q=${encodeURIComponent(title)}`);
@@ -107,7 +117,7 @@ test("recruiter creates, edits, publishes, closes, reopens and archives a job", 
     await expect(
       visitor.getByRole("link", { name: "Apply", exact: true }),
     ).toHaveAttribute("href", `${slugUrl}/apply`);
-    await publicContext.clearCookies();
+    await publicContext.clearCookies({ name: /^(?!hirevelo-language$)/ });
     for (const action of ["Close", "Publish", "Archive"]) {
       await page.getByRole("button", { name: action, exact: true }).click();
       await page
@@ -299,9 +309,9 @@ test("careers is public, hides private jobs, returns 404s and checks candidate a
   ).toBeVisible();
   await page.goto("/recruiter/jobs/new");
   await expect(
-    page.getByRole("heading", { level: 1, name: "Page not found" }),
+    page.getByRole("heading", { level: 1, name: "Recruiter access required" }),
   ).toBeVisible();
-  await page.context().clearCookies();
+  await page.context().clearCookies({ name: /^(?!hirevelo-language$)/ });
   await page.goto("/recruiter/jobs");
   await expect(page).toHaveURL(/\/sign-in$/);
 });
