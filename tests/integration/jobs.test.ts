@@ -8,6 +8,7 @@ import {
   vi,
 } from "vitest";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { seed } from "../../prisma/seed";
 import { ForbiddenError, AuthError } from "@/lib/errors";
 const context = vi.hoisted(() => ({ role: "RECRUITER", id: "" }));
@@ -147,6 +148,31 @@ describe("job mutations", () => {
     const b = await create({ title });
     expect(b.slug).not.toBe(a.slug);
     expect(b.slug).toMatch(new RegExp(`^${a.slug}-[a-f0-9]{8}$`));
+  });
+  it("bounds slug retry exhaustion and returns a safe non-unique failure", async () => {
+    const before = await prisma.job.count();
+    const collision = new Prisma.PrismaClientKnownRequestError(
+      "private constraint",
+      { code: "P2002", clientVersion: "6" },
+    );
+    const tx = vi.spyOn(prisma, "$transaction").mockRejectedValue(collision);
+    try {
+      expect(await createJob(valid)).toMatchObject({
+        ok: false,
+        status: 409,
+        message: "Unable to generate a unique job URL. Please try again.",
+      });
+      expect(tx).toHaveBeenCalledTimes(5);
+      tx.mockClear().mockRejectedValue(new Error("private database details"));
+      expect(await createJob(valid)).toEqual({
+        ok: false,
+        message: "Something went wrong. Please try again.",
+      });
+      expect(tx).toHaveBeenCalledTimes(1);
+    } finally {
+      tx.mockRestore();
+    }
+    expect(await prisma.job.count()).toBe(before);
   });
   it("blocks incomplete publication without activity and permits publish/close/reopen/archive", async () => {
     const job = await create();
