@@ -5,9 +5,22 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(value: string | Date) {
-  return new Intl.DateTimeFormat("en-US", {
+export function formatDate(value: string | Date, locale: "en" | "id" = "en") {
+  return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", {
     dateStyle: "medium",
     timeZone: "UTC",
   }).format(new Date(value));
+}
+
+export function formatDateTime(
+  value: string | Date,
+  locale: "en" | "id" = "en",
+) {
+  return (
+    new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "UTC",
+    }).format(new Date(value)) + " UTC"
+  );
 }
