@@ -1,4 +1,4 @@
-import { FoundationPage } from "@/components/shared/foundation-page";
+import { Dashboard } from "@/components/dashboard/Dashboard";
 export default function Page() {
-  return <FoundationPage title="Dashboard" />;
+  return <Dashboard />;
 }
