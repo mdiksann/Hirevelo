@@ -49,6 +49,12 @@ next-env.d.ts
 # Temporary route created only by test:e2e and removed on exit
 /src/app/foundation-test-error/
 
+# Generated design explorations and unused export sets; retain Markdown notes
+/design/logo-concepts/*
+!/design/logo-concepts/*.md
+/public/brand/variants/
+/public/icons/3d/*.png
+
 # Local tool settings and credentials
 /.agents/
 /.codex/

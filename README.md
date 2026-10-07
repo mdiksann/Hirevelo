@@ -67,7 +67,7 @@ Open http://localhost:3000. Routes: `/`, `/careers`, `/sign-in`, `/register`,
 `/recruiter`, `/recruiter/jobs`, `/recruiter/candidates`, and `/applications`.
 Recruiter and application
 layouts enforce their roles on the server; anonymous visitors go to `/sign-in`,
-and wrong-role requests receive the existing 404 screen. The recent-job sidebar
+and wrong-role requests receive an account-access explanation with links to their workspace and sign-out. The recent-job sidebar
 displays public published-job titles.
 
 Compose runs PostgreSQL 16 bound to localhost with a persistent named volume and
@@ -194,3 +194,29 @@ Engineering §14. Seeded demo CV metadata has no backing file and returns a safe
 - [Engineering guide](ENGINEERING.md): architecture, conventions, and operational requirements.
 - [Design guide](DESIGN.md): layouts, components, and visual tokens.
 - [Implementation tickets](TASKS.md): acceptance criteria and development progress.
+
+### Login berdasarkan role
+
+- Kandidat: `/sign-in`; pendaftaran publik di `/register` selalu membuat akun kandidat.
+- Recruiter: `/recruiter/sign-in`; akun dibuat operator melalui provisioning yang sudah tersedia (seed lokal atau bootstrap produksi).
+- Pilihan login memeriksa role akun yang tersimpan; tidak mengubah atau memberikan role baru.
+- Membuka workspace role lain menampilkan penjelasan akses dan pilihan keluar untuk berganti akun.
+
+## Frontend and languages
+
+The light-mode interface shares a forest-green identity across the public site,
+candidate workspace, recruiter workspace and authentication pages. Navigation
+uses a mobile drawer below 1024px; tables disclose secondary fields in their rows
+on smaller screens. All existing recruitment features remain available.
+
+Indonesian is the default language. The ID/EN selector persists the preference
+in the `hirevelo-language` cookie and applies it during server rendering as well
+as client interactions. Translations live in `src/lib/i18n/id.json`; English UI
+copy is used as the lookup key. Job descriptions, names, uploaded filenames,
+notes and rejection reasons retain their original content. Audit timestamps
+remain explicitly in UTC, with date formatting in the selected language.
+
+Run `npm run dev` to review the frontend locally. `npm run test:e2e` checks the
+existing hiring flows plus locale persistence, validation, responsive layouts
+at 360/768/1440px, and accessibility. These tests use the disposable `_test`
+database; they do not publish or deploy the application.
