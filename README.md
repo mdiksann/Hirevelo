@@ -1,222 +1,64 @@
 # Hirevelo
 
-Hirevelo is an Applicant Tracking System (ATS) for small hiring teams and
-independent recruiters. It brings job vacancies, applications, interview notes,
-and hiring decisions into one place so recruiters can follow each candidate's
-progress and candidates can check the status of their own applications.
+Hirevelo is an **Applicant Tracking System (ATS)** that brings job vacancies,
+applications, and candidate progress into one place. It helps recruiters organize
+the hiring process while giving candidates a way to find opportunities, submit
+their CVs, and track their applications.
 
-## Who it is for
+Built for small hiring teams and independent recruiters, Hirevelo keeps the
+process clear from the first application to the final hiring decision.
 
-- **Recruiters:** publish vacancies, review applications and CVs, move candidates
-  through hiring stages, record interview notes, and review activity history.
-- **Candidates:** browse published vacancies, apply with a CV and cover note, and
-  track their application status.
+## What You Can Do
 
-Recruiter accounts are provisioned by an operator; candidate registration is
-self-service. Hirevelo is designed for a single organization, with two roles and
-a fixed recruitment pipeline.
+### For Recruiters
 
-## Hiring workflow
+- Create, publish, close, and archive job vacancies.
+- Review applications, candidate details, CVs, and cover notes.
+- Search and filter applications by vacancy and recruitment stage.
+- Move candidates through the hiring pipeline.
+- Add interview notes and review each application's activity history.
+- Reject applications with a reason that the candidate can read.
+- Monitor hiring metrics and recent activity through a dashboard.
 
-The planned workflow follows these stages:
+### For Candidates
+
+- Browse available vacancies and read job details.
+- Create an account and apply with a CV and an optional cover note.
+- View submitted applications and their current recruitment stages.
+- Read the rejection reason when an application is rejected.
+
+## The Hiring Workflow
+
+Hirevelo provides a structured recruitment pipeline:
 
 ```text
 Applied → Screening → Interview → Offering → Hired
 ```
 
-A candidate can also be rejected from any active stage, with a recorded reason.
-Stage changes retain an activity history showing who made the change and when.
-Closing a vacancy stops new applications while existing candidates can continue
-through the pipeline; archiving makes the vacancy and its pipeline read-only.
+Recruiters can move candidates forward or back between active stages as needed.
+An application can also be **Rejected** from any active stage. Hired and Rejected
+are final states, and every stage change is recorded in the activity history.
 
-## Project scope
+Closing a vacancy stops new applications while allowing existing candidates to
+continue through the pipeline. Archiving makes the vacancy and its pipeline
+read-only.
 
-The MVP covers vacancy management, candidate applications, CV uploads, interview
-notes, activity history, and a recruiter dashboard. It does not include AI resume
-scoring, messaging, calendar scheduling, billing, or configurable pipeline stages.
+## Why Use Hirevelo?
 
-The project is under development. The current application provides the database
-foundation, candidate registration, credential sign-in, sign-out, and protected
-role-specific shells, job management, CV uploads/downloads, candidate application
-submission and status views, and recruiter candidate search and profiles.
-Pipeline actions, interview notes, activity timelines, and the dashboard remain
-placeholders for their later tickets.
+- **Keep hiring information together.** Vacancies, applications, CVs, and
+  interview notes are easier to find when they live in one place.
+- **Organize candidate progress.** Clear stages help recruiters see where each
+  candidate stands and decide what to do next.
+- **Make decisions traceable.** Activity history records stage changes, when
+  they happened, and who made them.
+- **Give candidates visibility.** Applicants can check their status without
+  having to ask a recruiter for every update.
+- **Get a clear hiring overview.** The dashboard summarizes open vacancies,
+  candidate counts, application stages, and recent activity.
 
-## Technology
+## Access and Privacy
 
-Hirevelo uses one Next.js App Router application for the frontend and server,
-TypeScript, PostgreSQL with Prisma, and Tailwind CSS with shadcn/ui components.
-Auth.js is the authentication framework. There is no separate backend service.
-Vitest and Playwright support automated testing, and Docker Compose provides the
-local PostgreSQL database.
-
-## Local setup
-
-Node.js 22.13+, npm, and Docker Compose are required.
-
-```sh
-cp .env.example .env
-npm ci
-docker compose up -d --wait
-npm run db:migrate
-npm run db:seed
-npm run dev
-```
-
-Open http://localhost:3000. Routes: `/`, `/careers`, `/sign-in`, `/register`,
-`/recruiter`, `/recruiter/jobs`, `/recruiter/candidates`, and `/applications`.
-Recruiter and application
-layouts enforce their roles on the server; anonymous visitors go to `/sign-in`,
-and wrong-role requests receive an account-access explanation with links to their workspace and sign-out. The recent-job sidebar
-displays public published-job titles.
-
-Compose runs PostgreSQL 16 bound to localhost with a persistent named volume and
-healthcheck. Its credentials are local demo values. `POSTGRES_PORT` optionally
-changes the host port; update both database URLs in `.env` to match.
-
-Environment variables are validated at server boot; invalid/missing values fail
-with field names, without printing secrets. `DATABASE_URL`, `AUTH_SECRET` (32+
-characters), `AUTH_URL`, and `STORAGE_DIR` are required. `LOG_LEVEL` defaults to
-`debug` in development and `info` in production. Recruiter seed variables are
-optional together in development; production seeding requires both. The `.env`
-file, uploads, build output, and browser traces are ignored.
-
-## Authentication and recruiter provisioning
-
-Candidate registration always creates `CANDIDATE`; there is no public recruiter
-creation endpoint. Passwords use cost-12 bcrypt with a 72-byte input limit.
-Auth.js credentials use JWT cookies with an entry in the existing Session table
-for server-side expiry/revocation. Sign-out removes that entry and clears the
-cookie, so replaying a copied cookie cannot restore a session. The Next.js 16
-proxy only decrypts cookies for coarse redirects; server helpers enforce roles
-and ownership against the database.
-
-Before production startup, apply migrations and set both
-`SEED_RECRUITER_EMAIL` and `SEED_RECRUITER_PASSWORD` to operator-controlled values.
-On production startup, the bootstrap creates one recruiter when none exists.
-Without those values and an existing recruiter, it logs `RECRUITER_MISSING`. An
-email already belonging to a candidate is never promoted; choose an unused
-operator email. Existing recruiter accounts/passwords remain unchanged. The
-seed command can also provision the account; it is idempotent and production
-seeding requires both variables. Do not use the demo password in production.
-
-Sign-in and registration share a limit of 10 attempts per 15 minutes per IP.
-Direct credential requests return HTTP 429 with `Retry-After`; Server Actions
-return a safe error with status 429 for inline form feedback. The limiter lives
-in memory for the single-instance MVP and resets on restart. Before using
-multiple instances, replace it with a shared store. The trusted ingress must
-overwrite or append `X-Forwarded-For` and prevent clients from reaching the app
-directly: the limiter uses the last address, falling back to a shared `unknown`
-bucket when no valid address is available. Set `AUTH_URL` to the actual public
-origin; use HTTPS in production for secure Auth.js cookies.
-
-## Database and demo data
-
-Three migrations establish core entities, history/files, then Auth.js tables.
-Tables use mapped plural names, cuid defaults, UTC timestamps, explicit foreign
-keys, list indexes, and database uniqueness constraints. Activity references use
-`Restrict`; notes cascade only when no history prevents application deletion.
-
-`npm run db:seed` is idempotent: 1 recruiter, 3 candidates, 5 jobs across all four
-statuses, 6 applications across all stages, interview notes, and activity entries.
-Demo password: `Demo-password-123`; recruiter email: `recruiter@example.com`
-(unless overridden); candidates: `candidate1@example.com` through `candidate3@example.com`.
-Demo accounts can sign in. Recruiters land on `/recruiter`; candidates land on `/`.
-CV rows are metadata placeholders without corresponding uploaded files.
-Inspect the complete dataset with `npm run db:studio`; the sidebar shows the two
-published demo jobs. Existing seed rows/accounts are preserved on repeat runs.
-
-`npm run db:reset` destroys the configured database and reapplies migrations; use
-only with a disposable development database. It does not seed automatically.
-
-## Commands and tests
-
-| Command                                          | Purpose                                                          |
-| ------------------------------------------------ | ---------------------------------------------------------------- |
-| `npm run dev`                                    | Development server                                               |
-| `npm run build` / `npm start`                    | Production build / server                                        |
-| `npm run lint`                                   | ESLint, including zero warnings                                  |
-| `npm run typecheck`                              | Route generation + strict TypeScript checks                      |
-| `npm run format` / `npm run format:check`        | Format / check source and configs                                |
-| `npm run db:migrate`                             | Apply committed migrations                                       |
-| `npm run db:migrate:dev`                         | Author a new development migration                               |
-| `npm run db:generate`                            | Generate Prisma client                                           |
-| `npm run db:seed` / `npm run db:reset`           | Seed / reset development data                                    |
-| `npm test`                                       | Unit and integration suites                                      |
-| `npm run test:unit` / `npm run test:integration` | Individual test layers                                           |
-| `npm run test:e2e`                               | Playwright shell, keyboard, mobile, axe, health, and retry tests |
-
-Create a separate disposable test database before running integration tests:
-
-```sh
-docker compose exec -T db createdb -U hirevelo hirevelo_test
-DATABASE_URL='postgresql://hirevelo:hirevelo_local@localhost:5432/hirevelo_test' npm run db:migrate
-npm test
-npx playwright install chromium
-npm run test:e2e
-```
-
-Create `hirevelo_test` only once. `DATABASE_URL_TEST` selects the integration
-connection; tests reject database names not ending in `_test`. Integration setup
-clears only that database, then seeds fixtures. The health failure test exercises
-an actual unreachable PostgreSQL connection. Tests use Vitest and real PostgreSQL,
-not an in-memory database. Shared Auth.js session roles are checked by TypeScript.
-
-Playwright migrates and seeds the disposable test database and starts its own
-production build/server on port 3100 with real authentication. It temporarily installs an error fixture page and
-removes it and the test build on exit; run `npm run build` again before deployment.
-No test route is shipped.
-Do not run another server on port 3100 or a concurrent build during this suite.
-
-## CV storage and applications
-
-Candidates apply at `/careers/[slug]/apply`, then view their submissions at
-`/applications`. Recruiters search applications at `/recruiter/candidates`.
-Only published jobs accept applications; duplicate applications are permanently
-blocked. File ownership is checked again during submission.
-
-CVs accept matching PDF/DOC/DOCX MIME types and extensions, up to 5 MB. Uploads
-are limited to ten attempts per candidate per fifteen minutes in this single
-process deployment. Generated files live under `STORAGE_DIR/cv/`; with the
-existing `STORAGE_DIR=./storage/cv`, that is `./storage/cv/cv/`. Downloads require
-the owner or a recruiter and always use attachment responses.
-
-HF-027 requires upload-time metadata, so uploads are staged before the application
-transaction links them. Failed metadata writes remove the new disk file; retries
-in the same apply form reuse the staged file. Abandoned successful uploads can
-remain unreferenced; the optional 24-hour orphan sweep is deferred as allowed by
-Engineering §14. Seeded demo CV metadata has no backing file and returns a safe
-404; newly uploaded CVs support downloads.
-
-## Project documentation
-
-- [Product specification](PROJECT_SPEC.md): roles, user journeys, scope, and business rules.
-- [Engineering guide](ENGINEERING.md): architecture, conventions, and operational requirements.
-- [Design guide](DESIGN.md): layouts, components, and visual tokens.
-- [Implementation tickets](TASKS.md): acceptance criteria and development progress.
-
-### Login berdasarkan role
-
-- Kandidat: `/sign-in`; pendaftaran publik di `/register` selalu membuat akun kandidat.
-- Recruiter: `/recruiter/sign-in`; akun dibuat operator melalui provisioning yang sudah tersedia (seed lokal atau bootstrap produksi).
-- Pilihan login memeriksa role akun yang tersimpan; tidak mengubah atau memberikan role baru.
-- Membuka workspace role lain menampilkan penjelasan akses dan pilihan keluar untuk berganti akun.
-
-## Frontend and languages
-
-The light-mode interface shares a forest-green identity across the public site,
-candidate workspace, recruiter workspace and authentication pages. Navigation
-uses a mobile drawer below 1024px; tables disclose secondary fields in their rows
-on smaller screens. All existing recruitment features remain available.
-
-Indonesian is the default language. The ID/EN selector persists the preference
-in the `hirevelo-language` cookie and applies it during server rendering as well
-as client interactions. Translations live in `src/lib/i18n/id.json`; English UI
-copy is used as the lookup key. Job descriptions, names, uploaded filenames,
-notes and rejection reasons retain their original content. Audit timestamps
-remain explicitly in UTC, with date formatting in the selected language.
-
-Run `npm run dev` to review the frontend locally. `npm run test:e2e` checks the
-existing hiring flows plus locale persistence, validation, responsive layouts
-at 360/768/1440px, and accessibility. These tests use the disposable `_test`
-database; they do not publish or deploy the application.
+Recruiter accounts are provisioned by an operator, while candidates can register
+for themselves. Recruiters can review applications across the system. Candidates
+can access only their own applications and CVs; internal interview notes and
+recruiter comments remain private.
