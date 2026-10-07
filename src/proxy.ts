@@ -9,9 +9,9 @@ export async function proxy(request: NextRequest) {
   const requestId = parsed.success ? parsed.data : crypto.randomUUID();
   const headers = new Headers(request.headers);
   headers.set("x-request-id", requestId);
-  const protectedRoute = /^\/(recruiter|applications)(\/|$)/.test(
-    request.nextUrl.pathname,
-  );
+  const protectedRoute =
+    request.nextUrl.pathname !== "/recruiter/sign-in" &&
+    /^\/(recruiter|applications)(\/|$)/.test(request.nextUrl.pathname);
   const token = protectedRoute
     ? await getToken({
         req: request,
@@ -20,9 +20,17 @@ export async function proxy(request: NextRequest) {
           new URL(process.env.AUTH_URL ?? request.url).protocol === "https:",
       })
     : null;
+  const portal = request.nextUrl.pathname.startsWith("/recruiter")
+    ? "recruiter"
+    : "candidate";
   const response =
-    protectedRoute && !token
-      ? NextResponse.redirect(new URL("/sign-in", request.url))
+    protectedRoute && (!token || token.role !== portal.toUpperCase())
+      ? NextResponse.redirect(
+          new URL(
+            portal === "recruiter" ? "/recruiter/sign-in" : "/sign-in",
+            request.url,
+          ),
+        )
       : NextResponse.next({ request: { headers } });
   if (protectedRoute)
     response.headers.set("Cache-Control", "private, no-store");

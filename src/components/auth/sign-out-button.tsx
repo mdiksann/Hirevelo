@@ -1,10 +1,12 @@
 "use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import { useState, useTransition } from "react";
 import { LoaderCircle } from "lucide-react";
 import { signOutAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 
 export function SignOutButton() {
+  const t = useTranslator();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
   return (
@@ -27,16 +29,18 @@ export function SignOutButton() {
           });
         }}
       >
-        {pending ? (
-          <>
-            <LoaderCircle
-              aria-hidden="true"
-              className="size-3.5 animate-spin motion-reduce:animate-none"
-            />
-            <span className="sr-only">Signing out</span>
-          </>
-        ) : (
-          "Sign out"
+        {t(
+          pending ? (
+            <>
+              <LoaderCircle
+                aria-hidden="true"
+                className="size-3.5 animate-spin motion-reduce:animate-none"
+              />
+              <span className="sr-only">{t("Signing out")}</span>
+            </>
+          ) : (
+            "Sign out"
+          ),
         )}
       </Button>
       {error && (
@@ -44,7 +48,7 @@ export function SignOutButton() {
           role="alert"
           className="p-3 text-[length:var(--hv-text-meta)] text-[var(--hv-danger-ink)]"
         >
-          {error}
+          {t(error)}
         </p>
       )}
     </div>

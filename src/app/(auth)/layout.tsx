@@ -1,25 +1,29 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
-type Props = { children: ReactNode };
-export default function Layout({ children }: Props) {
+import { Brand } from "@/components/shared/brand";
+import { LanguageSwitcher } from "@/components/i18n/language-provider";
+import { getTranslator } from "@/lib/i18n/server";
+import { Button } from "@/components/ui/button";
+export default async function Layout({ children }: { children: ReactNode }) {
+  const t = await getTranslator();
   return (
-    <main className="mx-auto max-w-100 p-6">
-      <header className="mb-6">
-        <Link
-          href="/"
-          className="text-[length:var(--hv-text-section)] font-semibold tracking-[0.14em]"
-        >
-          HIREVELO
-        </Link>
-        <nav
-          aria-label="Account navigation"
-          className="mt-4 flex gap-4 text-[length:var(--hv-text-ui)]"
-        >
-          <Link href="/sign-in">Sign in</Link>
-          <Link href="/register">Register</Link>
+    <div className="auth-layout">
+      <header className="auth-header">
+        <Brand />
+        <nav aria-label={t("Account navigation")} className="auth-nav">
+          <Button asChild variant="ghost">
+            <Link href="/">
+              <ArrowLeft aria-hidden="true" />
+              {t("Back")}
+            </Link>
+          </Button>
         </nav>
+        <LanguageSwitcher />
       </header>
-      {children}
-    </main>
+      <main id="main-content" className="auth-main">
+        <div className="auth-form-panel">{children}</div>
+      </main>
+    </div>
   );
 }

@@ -24,6 +24,8 @@ export async function verifyCredentials(input: unknown) {
     user?.passwordHash ?? dummyHash,
   );
   if (!user || !valid) return null;
+  if (parsed.data.portal && user.role !== parsed.data.portal.toUpperCase())
+    return null;
   return { id: user.id, role: user.role, name: user.name, email: user.email };
 }
 export async function getActiveAuthSession(sessionToken: string) {

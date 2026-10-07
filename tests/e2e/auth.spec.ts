@@ -17,7 +17,7 @@ test("registration validates fields, creates a session, and reports duplicate em
   );
   await page.getByLabel("Name").fill("New candidate");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("Strong-password-1");
+  await page.getByLabel(/^Password/).fill("Strong-password-1");
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/:3100\/$/);
   expect(
@@ -27,11 +27,11 @@ test("registration validates fields, creates a session, and reports duplicate em
   await expect(
     page.getByRole("navigation", { name: "Candidate navigation" }),
   ).toBeVisible();
-  await context.clearCookies();
+  await context.clearCookies({ name: /^(?!hirevelo-language$)/ });
   await page.goto("/register");
   await page.getByLabel("Name").fill("Duplicate candidate");
   await page.getByLabel("Email").fill(email.toUpperCase());
-  await page.getByLabel("Password").fill("Strong-password-1");
+  await page.getByLabel(/^Password/).fill("Strong-password-1");
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page.getByLabel("Email")).toHaveAttribute(
     "aria-invalid",
@@ -46,14 +46,14 @@ test("wrong password returns a generic message; a later valid login succeeds", a
 }) => {
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill("candidate1@example.com");
-  await page.getByLabel("Password").fill("wrong-password");
+  await page.getByLabel(/^Password/).fill("wrong-password");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByRole("main").getByRole("alert")).toHaveText(
-    "Invalid email or password.",
+    "Invalid email or password. Use the login that matches your account type.",
   );
-  await page.getByLabel("Password").fill("Demo-password-123");
+  await page.getByLabel(/^Password/).fill("Demo-password-123");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/:3100\/$/);
+  await expect(page).toHaveURL(/\/applications$/);
 });
 for (const role of ["candidate", "recruiter"] as const) {
   test(`${role} session persists, sign-out revokes saved cookies and blocks browser back`, async ({
@@ -84,7 +84,7 @@ for (const role of ["candidate", "recruiter"] as const) {
       }),
     ).toHaveCount(0);
     await page.goto(protectedPath);
-    await expect(page).toHaveURL(/\/sign-in$/);
+    await expect(page).toHaveURL(/\/(?:recruiter\/)?sign-in$/);
     await copied.close();
   });
 }
@@ -99,18 +99,17 @@ test("direct URLs enforce both roles and permit public pages", async ({
     "/recruiter/jobs",
   ]) {
     await page.goto(route);
-    await expect(page).toHaveURL(/\/sign-in$/);
+    await expect(page).toHaveURL(/\/(?:recruiter\/)?sign-in$/);
   }
   await page.goto("/careers");
   await expect(
     page.getByRole("heading", { name: "Careers", exact: true }),
   ).toBeVisible();
   await login(page, "candidate");
-  const denied = await page.goto("/recruiter/jobs");
+  await page.goto("/recruiter/jobs");
   await expect(
-    page.getByRole("heading", { name: "Page not found" }),
+    page.getByRole("heading", { name: "Recruiter access required" }),
   ).toBeVisible();
-  expect(denied?.status()).toBe(404);
   await expect(
     page.getByRole("navigation", { name: "Recruiter navigation" }),
   ).toHaveCount(0);
@@ -118,11 +117,11 @@ test("direct URLs enforce both roles and permit public pages", async ({
   await expect(
     page.getByRole("heading", { name: "My applications", exact: true }),
   ).toBeVisible();
-  await context.clearCookies();
+  await context.clearCookies({ name: /^(?!hirevelo-language$)/ });
   await login(page, "recruiter");
   await page.goto("/applications");
   await expect(
-    page.getByRole("heading", { name: "Page not found" }),
+    page.getByRole("heading", { name: "Candidate access required" }),
   ).toBeVisible();
   await page.goto("/recruiter/jobs");
   await expect(
@@ -162,7 +161,7 @@ test("eleventh failed credential request returns 429 and the form shows lockout"
   expect(blocked.headers()["retry-after"]).toBeDefined();
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill("candidate1@example.com");
-  await page.getByLabel("Password").fill("Demo-password-123");
+  await page.getByLabel(/^Password/).fill("Demo-password-123");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page.getByRole("main").getByRole("alert")).toHaveText(
     "Too many attempts. Please try again in 15 minutes.",
@@ -202,4 +201,47 @@ test("auth forms meet accessibility and mobile layout requirements", async ({
     ).toBe(true);
   }
   await page.screenshot({ path: "/tmp/hirevelo-auth-mobile.png" });
+});
+
+test("role-specific login separates recruiter access from candidate registration", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/recruiter");
+  await expect(page).toHaveURL(/\/recruiter\/sign-in$/);
+  await expect(
+    page.getByRole("heading", { name: "Recruiter sign in", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Recruiter accounts are created by the operator.", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  await page.getByLabel("Email").fill("candidate1@example.com");
+  await page.getByLabel(/^Password/).fill("Demo-password-123");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Use the login that matches your account type.",
+  );
+  await expect(page).toHaveURL(/\/recruiter\/sign-in$/);
+  await page.getByLabel("Email").fill("recruiter@example.com");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/recruiter$/);
+  await context.clearCookies({ name: /^(?!hirevelo-language$)/ });
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill("candidate1@example.com");
+  await page.getByLabel(/^Password/).fill("Demo-password-123");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/applications$/);
+  await context.clearCookies({ name: /^(?!hirevelo-language$)/ });
+  await page.goto("/sign-in");
+  await page
+    .getByRole("link", { name: "Register", exact: true })
+    .last()
+    .click();
+  await expect(
+    page.getByText(
+      "Create a candidate account to apply for jobs and track your applications.",
+    ),
+  ).toBeVisible();
 });

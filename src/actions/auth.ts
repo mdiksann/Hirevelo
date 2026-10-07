@@ -72,10 +72,17 @@ export async function signInAction(
     await signIn("credentials", { ...parsed, redirect: false });
     const user = await getAuthRole(parsed.email);
     destination =
-      user?.role === "RECRUITER" ? "/recruiter" : (parsed.returnTo ?? "/");
+      user?.role === "RECRUITER"
+        ? "/recruiter"
+        : (parsed.returnTo ??
+          (parsed.portal === "candidate" ? "/applications" : "/"));
   } catch (error) {
     if (error instanceof NextAuthError)
-      return { ok: false, message: "Invalid email or password." };
+      return {
+        ok: false,
+        message:
+          "Invalid email or password. Use the login that matches your account type.",
+      };
     return handleActionError(error, requestId);
   }
   redirect(destination);

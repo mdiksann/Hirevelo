@@ -15,7 +15,9 @@ export const returnToSchema = z
   .string()
   .regex(/^\/careers\/[a-z0-9]+(?:-[a-z0-9]+)*\/apply$/)
   .max(180);
+export const portalSchema = z.enum(["candidate", "recruiter"]);
 export const signInSchema = z.object({
+  portal: portalSchema.optional(),
   email,
   returnTo: returnToSchema.optional(),
   password: password.refine(byteLimit, "Password must be at most 72 bytes."),

@@ -16,7 +16,11 @@ export const authConfig = {
   session: { strategy: "jwt", maxAge },
   providers: [
     Credentials({
-      credentials: { email: { type: "email" }, password: { type: "password" } },
+      credentials: {
+        email: { type: "email" },
+        password: { type: "password" },
+        portal: { type: "text" },
+      },
       async authorize(credentials, request) {
         const user = await verifyCredentials(credentials);
         if (!user)

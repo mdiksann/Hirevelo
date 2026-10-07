@@ -41,6 +41,7 @@ import {
   requireCandidate,
   requireOwnership,
 } from "@/lib/auth-helpers";
+import { verifyCredentials } from "@/lib/queries/auth";
 import { bootstrapRecruiter } from "@/lib/bootstrap";
 
 const email = `auth-${crypto.randomUUID()}@example.com`;
@@ -163,7 +164,11 @@ describe("real auth and registration", () => {
       email: "candidate1@example.com",
       password: "wrong",
     });
-    expect(wrong).toEqual({ ok: false, message: "Invalid email or password." });
+    expect(wrong).toEqual({
+      ok: false,
+      message:
+        "Invalid email or password. Use the login that matches your account type.",
+    });
     expect(
       await signInAction({ email: "nobody@example.com", password: "wrong" }),
     ).toEqual(wrong);
@@ -310,5 +315,48 @@ describe("HTTP throttling and provisioning", () => {
       env.SEED_RECRUITER_EMAIL = old.email;
       env.SEED_RECRUITER_PASSWORD = old.password;
     }
+  });
+});
+
+describe("login portals", () => {
+  it("matches the stored role after verifying credentials", async () => {
+    const candidate = {
+      email: "candidate1@example.com",
+      password: "Demo-password-123",
+    };
+    const recruiter = {
+      email: "recruiter@example.com",
+      password: "Demo-password-123",
+    };
+    expect(
+      await verifyCredentials({ ...candidate, portal: "recruiter" }),
+    ).toBeNull();
+    expect(
+      await verifyCredentials({ ...recruiter, portal: "candidate" }),
+    ).toBeNull();
+    expect(
+      await verifyCredentials({ ...candidate, portal: "candidate" }),
+    ).toMatchObject({ role: "CANDIDATE" });
+    expect(
+      await verifyCredentials({ ...recruiter, portal: "recruiter" }),
+    ).toMatchObject({ role: "RECRUITER" });
+  });
+  it("rejects a candidate at recruiter login without creating a session", async () => {
+    const result = await signInAction({
+      email: "candidate1@example.com",
+      password: "Demo-password-123",
+      portal: "recruiter",
+    });
+    expect(result.ok).toBe(false);
+    expect(await auth()).toBeNull();
+  });
+  it("takes candidates from their login to applications", async () => {
+    await expect(
+      signInAction({
+        email: "candidate1@example.com",
+        password: "Demo-password-123",
+        portal: "candidate",
+      }),
+    ).rejects.toThrow("redirect:/applications");
   });
 });

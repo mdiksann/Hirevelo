@@ -7,21 +7,26 @@ export async function isolateIp(context: BrowserContext) {
   });
 }
 export async function login(page: Page, role: "recruiter" | "candidate") {
-  await page.goto("/sign-in");
+  await page
+    .context()
+    .addCookies([
+      { name: "hirevelo-language", value: "en", url: "http://127.0.0.1:3100" },
+    ]);
+  await page.goto(role === "recruiter" ? "/recruiter/sign-in" : "/sign-in");
   await page
     .getByLabel("Email")
     .fill(
       role === "recruiter" ? "recruiter@example.com" : "candidate1@example.com",
     );
-  await page.getByLabel("Password").fill("Demo-password-123");
+  await page.getByLabel(/^Password/).fill("Demo-password-123");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(
-    role === "recruiter" ? /\/recruiter$/ : /:3100\/$/,
+    role === "recruiter" ? /\/recruiter$/ : /\/applications$/,
   );
   await expect(
     page.getByRole("heading", {
       level: 1,
-      name: role === "recruiter" ? "Dashboard" : "Hirevelo",
+      name: role === "recruiter" ? "Dashboard" : "My applications",
       exact: true,
     }),
   ).toBeVisible();
