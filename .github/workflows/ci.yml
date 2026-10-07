@@ -44,8 +44,26 @@ jobs:
       - run: npm run test:unit
       - run: npm run db:migrate
       - run: npm run test:integration
+      - name: Library and action coverage gate
+        run: npm run test:coverage
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage/
+          if-no-files-found: ignore
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Recruiter bundle budget report (HF-050 exception)
+        run: npm run test:bundle
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-results
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
       - name: Dependency audit (blocking)
         run: npm audit --audit-level=high
