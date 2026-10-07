@@ -1,11 +1,14 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import { stages, type Stage } from "@/lib/validation/applications";
 import { stageLabels } from "@/lib/applications";
 import { cn } from "@/lib/utils";
 export function PipelineStepper({ stage }: { stage: Stage }) {
+  const t = useTranslator();
   const current = stages.indexOf(stage);
   return (
     <ol
-      aria-label="Application pipeline"
+      aria-label={t("Application pipeline")}
       className="flex flex-col gap-4 sm:flex-row sm:flex-wrap"
     >
       {stages
@@ -30,9 +33,9 @@ export function PipelineStepper({ stage }: { stage: Stage }) {
                   "bg-[var(--hv-danger-solid)] ring-[var(--hv-danger-solid)]",
               )}
             />
-            {stageLabels[value]}
+            {t(stageLabels[value])}
             {stage === value && (
-              <span className="sr-only"> (current stage)</span>
+              <span className="sr-only">{t(" (current stage)")}</span>
             )}
           </li>
         ))}
