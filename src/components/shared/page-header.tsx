@@ -1,3 +1,5 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -8,9 +10,10 @@ type Props = {
   tabs?: readonly { label: string; href: string; active?: boolean }[];
 };
 export function PageHeader({ title, description, actions, tabs }: Props) {
+  const t = useTranslator();
   return (
-    <header className="mb-4">
-      <div className="flex items-start justify-between gap-4">
+    <header className="page-header mb-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-[length:var(--hv-text-page)] leading-[var(--hv-leading-page)] font-semibold">
             {title}
@@ -25,7 +28,7 @@ export function PageHeader({ title, description, actions, tabs }: Props) {
       </div>
       {tabs && (
         <nav
-          aria-label={`${title} views`}
+          aria-label={t("{title} views", { title })}
           className="mt-4 flex h-10 gap-5 border-b border-border-subtle"
         >
           {tabs.map((tab) => (
@@ -38,7 +41,7 @@ export function PageHeader({ title, description, actions, tabs }: Props) {
                 tab.active && "border-b-2 border-primary text-accent-ink",
               )}
             >
-              {tab.label}
+              {t(tab.label)}
             </Link>
           ))}
         </nav>

@@ -6,6 +6,7 @@ export function Toaster() {
       theme="light"
       position="bottom-right"
       visibleToasts={3}
+      expand
       duration={5000}
       toastOptions={{
         classNames: {

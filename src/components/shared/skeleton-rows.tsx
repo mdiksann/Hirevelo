@@ -1,7 +1,10 @@
+"use client";
+import { useTranslator } from "@/components/i18n/language-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 export function SkeletonRows() {
+  const t = useTranslator();
   return (
-    <div aria-busy="true" aria-label="Loading content">
+    <div role="status" aria-busy="true" aria-label={t("Loading content")}>
       {Array.from({ length: 5 }, (_, index) => (
         <div
           key={index}

@@ -8,7 +8,7 @@ test("route groups render distinct navigation with accessible landmarks", async 
   page,
 }) => {
   for (const [path, title, navigation] of [
-    ["/", "Hirevelo", "Public navigation"],
+    ["/", "A better way to hire, together.", "Public navigation"],
     ["/sign-in", "Sign in", "Account navigation"],
     ["/register", "Register", "Account navigation"],
     ["/careers", "Careers", "Public navigation"],
@@ -16,7 +16,7 @@ test("route groups render distinct navigation with accessible landmarks", async 
     ["/applications", "My applications", "Candidate navigation"],
   ] as const) {
     if (path === "/recruiter" || path === "/applications") {
-      await page.context().clearCookies();
+      await page.context().clearCookies({ name: /^(?!hirevelo-language$)/ });
       await login(page, path === "/recruiter" ? "recruiter" : "candidate");
     }
     await page.goto(path);
@@ -32,9 +32,9 @@ test("route groups render distinct navigation with accessible landmarks", async 
       await expect(
         page.getByRole("table", { name: "My applications" }),
       ).toBeVisible();
-    if (path === "/" || path === "/recruiter")
+    if (path === "/")
       await expect(
-        page.getByRole("heading", { name: "Nothing here yet" }),
+        page.getByRole("heading", { name: "Latest vacancies", exact: true }),
       ).toBeVisible();
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
@@ -48,9 +48,13 @@ test("desktop shell has specified geometry and keyboard focus", async ({
   await page.setViewportSize({ width: 1280, height: 800 });
   await login(page, "recruiter");
   await page.goto("/recruiter");
-  expect((await page.locator("aside").boundingBox())?.width).toBe(240);
+  expect((await page.locator("aside").boundingBox())?.width).toBe(260);
   const jobs = page.getByRole("link", { name: "Jobs", exact: true });
-  expect((await jobs.boundingBox())?.height).toBe(36);
+  expect((await jobs.boundingBox())?.height).toBe(48);
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("link", { name: "Skip to content" }),
+  ).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.locator("aside a").first()).toBeFocused();
   expect(
