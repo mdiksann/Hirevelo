@@ -2,7 +2,10 @@ import { expect, test } from "@playwright/test";
 import { isolateIp, login } from "./auth-helpers";
 import AxeBuilder from "@axe-core/playwright";
 
-test.beforeEach(async ({ context }) => isolateIp(context));
+test.beforeEach(async ({ context, page }) => {
+  await isolateIp(context);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+});
 
 test("route groups render distinct navigation with accessible landmarks", async ({
   page,

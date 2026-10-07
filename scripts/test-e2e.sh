@@ -9,7 +9,11 @@ if [[ -e "$fixture_dir" ]]; then
 fi
 
 cleanup() {
-  rm -rf "$fixture_dir" .next
+  rm -rf "$fixture_dir"
+  # Next.js 16 keeps the active development server cache under .next/dev.
+  if [[ -d .next ]]; then
+    find .next -mindepth 1 -maxdepth 1 ! -name dev -exec rm -rf {} +
+  fi
 }
 trap cleanup EXIT
 mkdir -p "$fixture_dir"

@@ -1,7 +1,5 @@
 import { getTranslator } from "@/lib/i18n/server";
 import Link from "next/link";
-import { Suspense } from "react";
-import { SkeletonRows } from "@/components/shared/skeleton-rows";
 import { getPublishedJobs } from "@/lib/queries/jobs";
 import { jobListQuerySchema } from "@/lib/validation/jobs";
 import { PageHeader } from "@/components/shared/page-header";
@@ -35,6 +33,8 @@ export default async function Page({
       </>
     );
   const { q, page } = parsed.data;
+  // Resolve the list before rendering: streamed Suspense reveals require JavaScript.
+  const jobList = await PublicJobList({ q, page });
   return (
     <>
       <section className="careers-intro">
@@ -43,9 +43,7 @@ export default async function Page({
         <p>{t("Browse open vacancies and find your next role.")}</p>
       </section>
       <JobFilters key={q} q={q} />
-      <Suspense fallback={<SkeletonRows />}>
-        <PublicJobList q={q} page={page} />
-      </Suspense>
+      {jobList}
     </>
   );
 }
