@@ -6,8 +6,8 @@ export default defineConfig({
   timeout: 60000,
   expect: { timeout: 15000 },
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.CI ? 1 : 0,
-  reporter: "list",
+  retries: 1,
+  reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:3100",
     trace: "retain-on-failure",
