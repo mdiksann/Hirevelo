@@ -203,6 +203,27 @@ test("recruiter rejects with inline validation; owning candidate sees reason and
       .getByRole("button", { name: "Reject application", exact: true })
       .focus();
     await page.keyboard.press("Enter");
+    // PostgreSQL can serialize disjoint test writes on the same index pages.
+    // Exercise the intended user retry only for the explicit retryable conflict.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const conflict = dialog.getByRole("alert").filter({
+        hasText: "This application or job changed. Please try again.",
+      });
+      await expect
+        .poll(
+          async () =>
+            (await dialog.count()) === 0 || (await conflict.isVisible()),
+        )
+        .toBe(true);
+      if ((await dialog.count()) === 0) break;
+      const submit = dialog.getByRole("button", {
+        name: "Reject application",
+        exact: true,
+      });
+      await expect(submit).toBeEnabled();
+      await submit.focus();
+      await page.keyboard.press("Enter");
+    }
     await expect(dialog).toHaveCount(0);
     await expect(page.getByText("Rejected", { exact: true })).toBeVisible();
     const candidateContext = await browser.newContext({
